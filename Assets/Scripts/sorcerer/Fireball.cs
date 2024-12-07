@@ -62,7 +62,7 @@ private void OnCollisionEnter(Collision collision)
     }
 
     // Destroy only if it's a valid collision
-    if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion"))
+    if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion") || collision.gameObject.CompareTag("Breakable") || collision.gameObject.CompareTag("Flooring"))
     {
         Destroy(gameObject);
     }

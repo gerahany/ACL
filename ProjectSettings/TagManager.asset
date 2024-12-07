@@ -13,6 +13,7 @@ TagManager:
   - RingOfFlames
   - Gernade
   - Breakable
+  - Flooring
   layers:
   - Default
   - TransparentFX
