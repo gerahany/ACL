@@ -7,7 +7,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
-using System.Collections.Generic;public class Barbarian : BasePlayer
+using System.Collections.Generic;
+public class Barbarian : BasePlayer
 {
     public Animator animator;
     public ParticleSystem chargeEffect;
@@ -18,7 +19,7 @@ using System.Collections.Generic;public class Barbarian : BasePlayer
     private float shieldCooldown = 10f;
     private float ironMaelstromCooldown = 5f;
     private float chargeCooldown = 10f;
-    private bool shieldActive = false;
+    public bool shieldActive = false;
     private float shieldDuration = 3f;
     public ParticleSystem bloodEffect;
 
@@ -45,6 +46,11 @@ using System.Collections.Generic;public class Barbarian : BasePlayer
             animator.SetBool("isWalking", false);
         }
     }
+    public bool IsShieldActive()
+    {
+        return shieldActive;
+    }
+
 
     void HandleAbilityInput()
     {   if (Input.GetKeyDown(KeyCode.W)) UseShield();

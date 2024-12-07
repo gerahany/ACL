@@ -97,23 +97,36 @@ public class BasePlayer : MonoBehaviour
         }
     public void TakeDamage(int damage)
     {
+        Barbarian barbarian = GetComponent<Barbarian>();  // Get the Barbarian component (assuming BasePlayer and Barbarian are attached to the same GameObject)
+
+        if (barbarian != null && barbarian.shieldActive)
+        {
+            // If the shield is active, do not apply damage
+            Debug.Log("Damage blocked by shield!");
+            return;
+        }
+
+        // Apply damage if no shield is active
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Ensure health doesn't go below 0
         
         if (currentHealth == 0)
         {
-             animator.SetTrigger("Die");
-             float fallDistance = 5.0f; // You can adjust this value to control how far down the player falls
-                Vector3 newPosition = transform.position;
-                newPosition.y -= fallDistance; // Move the player down
-                transform.position = newPosition;
+            animator.SetTrigger("Die");
+            float fallDistance = 5.0f; // You can adjust this value to control how far down the player falls
+            Vector3 newPosition = transform.position;
+            newPosition.y -= fallDistance; // Move the player down
+            transform.position = newPosition;
         }
-        else{
+        else
+        {
             animator.SetTrigger("Hit");
         }
 
         UpdateHealthUI();
     }
+
+
 
     public void Heal()
     {
