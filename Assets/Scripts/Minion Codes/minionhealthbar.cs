@@ -6,8 +6,10 @@ public class minionhealthbar : MonoBehaviour
     public Transform healthBarParent; // Assign dynamically during spawning
     public GameObject dashPrefab; // Assign in the Inspector
     private List<GameObject> dashes = new List<GameObject>();
-
+    public Animator animator;
     private int maxHealth = 20;
+
+    private bool isDead = false;
     private int currentHealth;
 
     void Start()
@@ -52,13 +54,35 @@ public class minionhealthbar : MonoBehaviour
         }
     }
 
-    // Reduce health
-    public void TakeDamage(int damage)
+    // Reduce heal
+public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        UpdateHealthBar();
+        if (currentHealth > 0 && !isDead) // Avoid taking damage if already dead
+        {
+            currentHealth -= damage;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            UpdateHealthBar();
+
+            if (animator != null && currentHealth > 0 )
+            {
+                animator.SetTrigger("DamageMinion"); // Trigger the damage animation
+            }
+        }
+
+        // Check if health reaches 0 and trigger DieMinion animation
+        if (currentHealth <= 0 && !isDead)
+        {
+            isDead = true; // Mark demon as dead
+            if (animator != null && currentHealth <= 0 )
+            {
+                animator.SetTrigger("DieMinion"); // Trigger the death animation
+            }
+
+            // Optionally, wait for the death animation to finish before destroying
+            Destroy(gameObject, 3f); // Adjust time based on animation length
+        }
     }
+
 
     // Heal health
     public void Heal(int healAmount)

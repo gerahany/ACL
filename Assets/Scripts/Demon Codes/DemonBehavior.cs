@@ -66,43 +66,76 @@ public Transform explosionEffect;
         targetPlayer = player;
     }
 
-    public void ReturnToCamp()
+public void ReturnToCamp()
+{
+    isAggressive = false;  // Demon is no longer aggressive
+    targetPlayer = null;   // Clear the target
+
+    if (agent != null && agent.isOnNavMesh)
     {
-        isAggressive = false;
-        targetPlayer = null;
-        agent.SetDestination(initialPosition); // Move back to the initial position
+        agent.isStopped = false;               // Ensure the agent is active
+        agent.SetDestination(initialPosition);  // Set destination to the initial position
+        Debug.Log("Demon moving back to camp.");
+        UpdateAnimation(true);                 // Trigger walking animation
+    }
+    else
+    {
+        Debug.LogError("NavMeshAgent is not set up or not on the NavMesh!");
+    }
+}
+
+void Update()
+{
+    // Track agent's current position and destination
+    if (agent != null)
+    {
+        Debug.Log($"Agent Position: {agent.transform.position}, Destination: {agent.destination}");
     }
 
-    void Update()
+    if (isAggressive && targetPlayer != null)
     {
-        if (isAggressive && targetPlayer != null)
-        {
-            float distanceToPlayer = Vector3.Distance(transform.position, targetPlayer.transform.position);
+        float distanceToPlayer = Vector3.Distance(transform.position, targetPlayer.transform.position);
 
-            
-            
-            if (distanceToPlayer <= attackRange)
+        if (distanceToPlayer <= attackRange)
+        {
+            animator.SetBool("IsWalking", false);
+            agent.isStopped = true;
+            if (!isAttacking && !isExploding)
             {
-                animator.SetBool("IsWalking", false);
-                agent.isStopped = true;  // Stop moving
-                if (!isAttacking && !isExploding)
-                {
-                    StartCoroutine(AttackPattern());
-                }
-            }
-            else
-            {
-                animator.SetBool("IsWalking", true);
-                agent.isStopped = false;  // Continue walking
-                agent.SetDestination(targetPlayer.transform.position);
-                UpdateAnimation(true);  // Walking animation
+                StartCoroutine(AttackPattern());
             }
         }
-        else if (!isAggressive && Vector3.Distance(transform.position, initialPosition) < 1f)
+        else
         {
             animator.SetBool("IsWalking", true);
+            agent.isStopped = false;
+            agent.SetDestination(targetPlayer.transform.position);
         }
     }
+    else if (!isAggressive)
+    {
+        // Check for returning to camp
+        float distanceToCamp = Vector3.Distance(transform.position, initialPosition);
+
+        // Log distance to initial position
+        Debug.Log($"Distance to camp: {distanceToCamp}");
+
+        if (distanceToCamp <= 1f)
+        {
+            // Only stop if we are very close to the destination
+            agent.isStopped = true;
+            animator.SetBool("IsWalking", false);
+            Debug.Log("Demon reached camp, stopping.");
+        }
+        else
+        {
+            // Ensure the agent continues to update towards the destination
+            agent.isStopped = false;
+            animator.SetBool("IsWalking", true);
+            Debug.Log("Demon moving back to camp.");
+        }
+    }
+}
 
 
     private IEnumerator AttackPattern()

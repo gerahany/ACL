@@ -178,9 +178,16 @@ void ApplyIronMaelstromDamage(Vector3 position)
     foreach (Collider collider in hitColliders)
     {
         minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
+        demonhealthbar demonHealth = collider.GetComponent<demonhealthbar>();
+
         if (minionhealthbar != null)
         {
             minionhealthbar.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
+            Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
+        }
+        if (demonHealth != null)
+        {
+            demonHealth.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
             Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
         }
     }
@@ -252,14 +259,22 @@ void ApplyIronMaelstromDamage(Vector3 position)
 {
     // Get all colliders in a small radius (for collision detection during the charge)
     Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f); // Adjust radius as needed
+    
     foreach (Collider collider in hitColliders)
     {
         minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
+         demonhealthbar demonHealth = collider.GetComponent<demonhealthbar>();
         if (minionhealthbar != null)
         {
             minionhealthbar.TakeDamage(20);  // Apply 20 damage to minions/demons
             Debug.Log($"Charge hit {collider.name} for 20 damage!");
         }
+        if (demonHealth != null)
+        {
+            demonHealth.TakeDamage(20);  // Apply 20 damage to minions/demons
+            Debug.Log($"Charge hit {collider.name} for 20 damage!");
+        }
+
 
         // Destroy breakable objects
         if (collider.CompareTag("Breakable"))

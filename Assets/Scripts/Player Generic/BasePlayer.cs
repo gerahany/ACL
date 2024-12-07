@@ -230,7 +230,7 @@ private void LevelUp()
     {
         if (levelText != null)
         {
-            levelText.text = $"L:{currentLevel}    S:{currentXP}xp ";
+            levelText.text = $"Level:{currentLevel}";
         }
     }
 
