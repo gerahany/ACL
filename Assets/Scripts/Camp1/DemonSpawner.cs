@@ -6,7 +6,7 @@ public class DemonSpawner : MonoBehaviour
    
     public GameObject demonPrefab; // Assign your 3D Minion model prefab in the Inspector
     public GameObject healthBarPrefab; // Assign a prefab for the health bar in the Inspector
-    public int demonCount = 5; // Number of demons to spawn
+    public int demonCount = 2; // Number of demons to spawn
     public float minDistance = 1f; // Minimum distance between demons
     public Vector3 xRange = new Vector3(600, 650, 0); // X range (min, max, unused)
     public Vector3 zRange = new Vector3(400, 500, 0); // Z range (min, max, unused)

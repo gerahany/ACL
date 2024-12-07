@@ -7,7 +7,7 @@ public class RandMinion2 : MonoBehaviour
 {
     public GameObject minionPrefab; // Assign your 3D Minion model prefab in the Inspector
     public GameObject healthBarPrefab; // Assign a prefab for the health bar in the Inspector
-    public int minionCount = 40; // Number of minions to spawn
+    public int minionCount = 15; // Number of minions to spawn
     public float minDistance = 1f; // Minimum distance between minions
     public Vector3 xRange = new Vector3(600, 650, 0); // X range (min, max, unused)
     public Vector3 zRange = new Vector3(400, 500, 0); // Z range (min, max, unused)

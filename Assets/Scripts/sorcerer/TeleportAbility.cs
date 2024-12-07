@@ -7,7 +7,7 @@ public class TeleportAbility : MonoBehaviour
     public float teleportCooldown = 10f; // Cooldown for the teleport ability
     private bool canTeleport = true; // Can the sorcerer teleport?
     private bool isSelectingPosition = false; // Flag to track if position is being selected
-    
+    public float maxTeleportDistance = 15f;
     private NavMeshAgent agent; // Reference to the sorcerer's NavMeshAgent (for movement)
 
     
@@ -47,11 +47,14 @@ public class TeleportAbility : MonoBehaviour
         {
             Vector3 targetPosition = hit.point; // Get the position where the raycast hits
 
+            // Limit the target position to the maximum teleport distance
+            Vector3 limitedPosition = LimitTeleportDistance(transform.position, targetPosition);
+
             // Check if the target position is walkable
-            if (IsWalkable(targetPosition))
+            if (IsWalkable(limitedPosition))
             {
                 // Start the teleportation
-                Teleport(targetPosition);
+                Teleport(limitedPosition);
 
                 // Start the cooldown
                 StartCoroutine(TeleportCooldown());
@@ -64,6 +67,18 @@ public class TeleportAbility : MonoBehaviour
 
         // End the position selection
         isSelectingPosition = false;
+    }
+
+    Vector3 LimitTeleportDistance(Vector3 startPosition, Vector3 targetPosition)
+    {
+        float distance = Vector3.Distance(startPosition, targetPosition);
+        if (distance > maxTeleportDistance)
+        {
+            // Calculate the direction and set the target at the maximum distance
+            Vector3 direction = (targetPosition - startPosition).normalized;
+            return startPosition + direction * maxTeleportDistance;
+        }
+        return targetPosition; // Target is within range, no modification needed
     }
 
     bool IsWalkable(Vector3 targetPosition)

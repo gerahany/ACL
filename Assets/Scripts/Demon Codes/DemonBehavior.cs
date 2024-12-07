@@ -78,9 +78,9 @@ public Transform explosionEffect;
 
 void Update()
 {
-    if (MinionBehavior.globalTarget2 != null)
+    if (DemonBehavior.globalTarget2 != null)
         {
-            targetPlayer = MinionBehavior.globalTarget2; // Switch to the global target
+            targetPlayer = DemonBehavior.globalTarget2; // Switch to the global target
         }
         else
         {

@@ -9,6 +9,7 @@ public class BasePlayer : MonoBehaviour
     public string playerName;
     public int currentLevel = 1;
     public int currentXP = 0;
+    public int currentAP = 0;
     public int maxXP = 100;
     public int abilityPoints = 0;
     public Animator animator; // Reference to the Animator component
@@ -243,7 +244,7 @@ private void LevelUp()
     {
         if (levelText != null)
         {
-            levelText.text = $"Level:{currentLevel}";
+            levelText.text = $"Level:{currentLevel}   Ability Pts:{currentAP} Potions:{healingPotions}";
         }
     }
 
