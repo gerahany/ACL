@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2467318156133912150
 Transform:
   m_ObjectHideFlags: 0
@@ -115,6 +115,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7339615633248863105}
   - component: {fileID: 6192233370329630086}
+  - component: {fileID: 8148164296656168839}
   m_Layer: 0
   m_Name: RingInferno
   m_TagString: Untagged
@@ -161,6 +162,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f99cd826b1fb4ab7b7618acf04d6a11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ringRadius: 3.66
+  initialDamage: 10
+  damagePerSecond: 2
+--- !u!135 &8148164296656168839
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3982446394506330599}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 3.77
+  m_Center: {x: -0.27, y: -0.24, z: 3.47}
 --- !u!1001 &2179134121910841544
 PrefabInstance:
   m_ObjectHideFlags: 0

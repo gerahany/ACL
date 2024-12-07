@@ -10,6 +10,7 @@ public class DemonBehavior : MonoBehaviour
     private GameObject targetPlayer;
     private bool hasExploded = false;
     private NavMeshAgent agent;
+    private static GameObject globalTarget2;
     private Animator animator; // Reference to Animator
     public float attackRange = 2f;  // Distance at which the demon will start attacking
     public float swingCooldown = 7f;  // Time between sword swings
@@ -77,6 +78,15 @@ public Transform explosionEffect;
 
 void Update()
 {
+    if (MinionBehavior.globalTarget2 != null)
+        {
+            targetPlayer = MinionBehavior.globalTarget2; // Switch to the global target
+        }
+        else
+        {
+            targetPlayer = GameObject.FindGameObjectWithTag("Player"); // Default to the player
+        }
+
     // Track agent's current position and destination
     if (agent != null)
     {
@@ -128,7 +138,15 @@ void Update()
     }
 }
 
+public static void SetGlobalTarget2(GameObject target)
+    {
+        globalTarget2 = target;
+    }
 
+    public static void RevertGlobalTarget2()
+    {
+        globalTarget2 = null;
+    }
     private IEnumerator AttackPattern()
     {
         // Sword swing

@@ -94,7 +94,8 @@ IEnumerator CreateClone(Vector3 position)
 
     Debug.Log("Clone created at position: " + position);
     
-
+    MinionBehavior.SetGlobalTarget(clone);
+    DemonBehavior.SetGlobalTarget2(clone);
 
     // Wait for the clone's duration
     yield return new WaitForSeconds(cloneDuration);
@@ -104,6 +105,9 @@ IEnumerator CreateClone(Vector3 position)
 
     // Destroy the clone
     Destroy(clone);
+
+    MinionBehavior.RevertGlobalTarget();
+    DemonBehavior.RevertGlobalTarget2();
 }
 
 

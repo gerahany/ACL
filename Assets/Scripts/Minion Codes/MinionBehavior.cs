@@ -10,6 +10,7 @@ public class MinionBehavior : MonoBehaviour
     private GameObject targetPlayer;
     private NavMeshAgent agent;
     private Animator animator;
+    private static GameObject globalTarget;
 
     private float punchDistance = 2f; // Distance to start punching
      private float punchCooldown = 7f; // Time between punches
@@ -46,6 +47,15 @@ public class MinionBehavior : MonoBehaviour
 
     void Update()
     {
+        if (MinionBehavior.globalTarget != null)
+        {
+            targetPlayer = MinionBehavior.globalTarget; // Switch to the global target
+        }
+        else
+        {
+            targetPlayer = GameObject.FindGameObjectWithTag("Player"); // Default to the player
+        }
+
         if (isAggressive && targetPlayer != null)
         {
             float distanceToPlayer = Vector3.Distance(transform.position, targetPlayer.transform.position);
@@ -131,5 +141,15 @@ public class MinionBehavior : MonoBehaviour
         {
             animator.SetBool(animationName, state);
         }
+    }
+
+    public static void SetGlobalTarget(GameObject target)
+    {
+        globalTarget = target;
+    }
+
+    public static void RevertGlobalTarget()
+    {
+        globalTarget = null;
     }
 }
