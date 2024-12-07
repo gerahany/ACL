@@ -66,23 +66,14 @@ public Transform explosionEffect;
         targetPlayer = player;
     }
 
-public void ReturnToCamp()
-{
-    isAggressive = false;  // Demon is no longer aggressive
-    targetPlayer = null;   // Clear the target
-
-    if (agent != null && agent.isOnNavMesh)
+    public void ReturnToCamp()
     {
-        agent.isStopped = false;               // Ensure the agent is active
-        agent.SetDestination(initialPosition);  // Set destination to the initial position
-        Debug.Log("Demon moving back to camp.");
-        UpdateAnimation(true);                 // Trigger walking animation
+        isAggressive = false;
+        targetPlayer = null;
+        agent.SetDestination(initialPosition);
+        agent.isStopped = false;
+        UpdateAnimation(true);
     }
-    else
-    {
-        Debug.LogError("NavMeshAgent is not set up or not on the NavMesh!");
-    }
-}
 
 void Update()
 {

@@ -211,7 +211,7 @@ void ApplyIronMaelstromDamage(Vector3 position)
             animator.SetTrigger("Shield");  // Trigger the shield animation
             Debug.Log($"{playerName} activated Shield!");
             StartCoroutine(ShieldCoroutine());
-            StartAbilityCooldown("Shield", shieldCooldown);
+            
         }
     }
 
@@ -225,7 +225,8 @@ void ApplyIronMaelstromDamage(Vector3 position)
         shieldBall.SetActive(false);
         Debug.Log("Shield expired!");
 
-        isAbilityInProgress = false;  // Unlock ability usage after shield is done
+        isAbilityInProgress = false; 
+        StartAbilityCooldown("Shield", shieldCooldown); // Unlock ability usage after shield is done
     }
 
     // 3. Iron Maelstrom Ability (AoE Attack)
@@ -238,10 +239,11 @@ void ApplyIronMaelstromDamage(Vector3 position)
             animator.SetTrigger("IronMaelstrom");
 
             Debug.Log($"{playerName} used Iron Maelstrom!");
-            StartAbilityCooldown("IronMaelstrom", ironMaelstromCooldown);
+            
             // Apply AoE damage logic here
             StartCoroutine(TriggerBloodEffect());
             StartCoroutine(WaitForAbilityCompletion());
+            StartAbilityCooldown("IronMaelstrom", ironMaelstromCooldown);
         }
     }
 

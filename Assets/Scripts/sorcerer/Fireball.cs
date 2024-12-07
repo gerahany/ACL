@@ -41,7 +41,24 @@ private void OnCollisionEnter(Collision collision)
     if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion"))
     {
         Debug.Log("Enemy hit!");
-        // Damage logic here
+        // Check if the enemy has a MinionHealth component
+        minionhealthbar minionHealth = collision.gameObject.GetComponent<minionhealthbar>();
+        demonhealthbar demonHealth = collision.gameObject.GetComponent<demonhealthbar>();
+
+        if (minionHealth != null)
+        {
+            Debug.Log("Bash hit the minion!");
+
+            minionHealth.TakeDamage(5);  // Apply 5 damage to the minion
+            Debug.Log($"Bash hit {collision.gameObject.name} for 5 damage!");
+        }
+        else if (demonHealth != null)
+        {
+            Debug.Log("Bash hit the minion!");
+
+            demonHealth.TakeDamage(5);  // Apply 5 damage to the minion
+            Debug.Log($"Bash hit {collision.gameObject.name} for 5 damage!");
+        }
     }
 
     // Destroy only if it's a valid collision
