@@ -1,49 +1,70 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class minionhealthbar : MonoBehaviour
 {
-    public int maxHealth = 20; // Maximum health represented by the number of dashes
-    private int currentHealth; // Current health
-
+    public Transform healthBarParent; // Assign dynamically during spawning
+    public GameObject dashPrefab; // Assign in the Inspector
     private List<GameObject> dashes = new List<GameObject>();
+
+    private int maxHealth = 20;
+    private int currentHealth;
 
     void Start()
     {
-        // Initialize health and get all dash images
+        InitializeHealthBar();
+    }
+
+    // Initializes the health bar
+    void InitializeHealthBar()
+    {
+        if (healthBarParent == null)
+        {
+            Debug.LogError($"Health bar parent is not assigned for {gameObject.name}.");
+            return;
+        }
+
         currentHealth = maxHealth;
 
-        foreach (Transform child in transform)
+        // Clear any existing dashes
+        foreach (Transform child in healthBarParent)
         {
-            dashes.Add(child.gameObject); // Add each child (dash) to the list
+            Destroy(child.gameObject);
+        }
+        dashes.Clear();
+
+        // Create dashes
+        for (int i = 0; i < maxHealth; i++)
+        {
+            GameObject dash = Instantiate(dashPrefab, healthBarParent);
+            dash.SetActive(true);
+            dashes.Add(dash);
         }
     }
 
+    // Updates the health bar
+    public void UpdateHealthBar()
+    {
+        for (int i = 0; i < dashes.Count; i++)
+        {
+            
+            dashes[i].SetActive(i < currentHealth);
+        }
+    }
+
+    // Reduce health
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
         UpdateHealthBar();
     }
 
-    private void UpdateHealthBar()
+    // Heal health
+    public void Heal(int healAmount)
     {
-        for (int i = 0; i < dashes.Count; i++)
-        {
-            if (i < currentHealth)
-                dashes[i].SetActive(true); // Show the dash if within health range
-            else
-                dashes[i].SetActive(false); // Hide the dash if outside health range
-        }
-    }
-
-    public void Heal(int amount)
-    {
-        currentHealth += amount;
+        currentHealth += healAmount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
         UpdateHealthBar();
     }
 }

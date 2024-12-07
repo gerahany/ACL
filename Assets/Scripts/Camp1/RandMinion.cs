@@ -51,7 +51,11 @@ public class RandMinion : MonoBehaviour
                 // Create and position the health bar
                 GameObject healthBar = Instantiate(healthBarPrefab, randomPosition + new Vector3(0, 2.5f, 0), Quaternion.identity);
                 healthBar.transform.SetParent(minion.transform); // Make the health bar a child of the minion
-
+                minionhealthbar healthBarScript = minion.GetComponent<minionhealthbar>();
+                if (healthBarScript != null)
+                {
+                    healthBarScript.healthBarParent = healthBar.transform; // Pass the health bar parent
+                }
                 minion.GetComponent<MinionBehavior>().Initialize(this); // Initialize MinionBehavior
                 minions.Add(minion);
 

@@ -143,16 +143,27 @@ StartCoroutine(TriggerBloodEffect());
     // Apply the Bash damage (for example, you could hit the enemy here)
 void ApplyBashDamage(GameObject enemy)
 {
-    // Check if the enemy has a MinionHealth component
-    minionhealthbar minionHealth = enemy.GetComponent<minionhealthbar>();
-    if (minionHealth != null)
-    {
-        Debug.Log("Bash hit the minion!");
+        // Check if the enemy has a MinionHealth component
+        minionhealthbar minionHealth = enemy.GetComponent<minionhealthbar>();
+        demonhealthbar demonHealth = enemy.GetComponent<demonhealthbar>();
 
-        minionHealth.TakeDamage(5);  // Apply 5 damage to the minion
-        Debug.Log($"Bash hit {enemy.name} for 5 damage!");
-    }
-    else
+        if (minionHealth != null)
+        {
+            Debug.Log("Bash hit the minion!");
+
+            minionHealth.TakeDamage(5);  // Apply 5 damage to the minion
+            Debug.Log($"Bash hit {enemy.name} for 5 damage!");
+        }
+        else if (demonHealth != null)
+        {
+            Debug.Log("Bash hit the minion!");
+
+            demonHealth.TakeDamage(5);  // Apply 5 damage to the minion
+            Debug.Log($"Bash hit {enemy.name} for 5 damage!");
+        }
+
+
+        else
     {
         Debug.LogWarning($"No MinionHealth script found on {enemy.name}!");
     }

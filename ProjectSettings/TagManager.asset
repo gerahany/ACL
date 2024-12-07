@@ -9,6 +9,9 @@ TagManager:
   - Barbarian
   - Rouge
   - Sorcerer
+  - Clone
+  - RingOfFlames
+  - Gernade
   layers:
   - Default
   - TransparentFX

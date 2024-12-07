@@ -3,12 +3,15 @@ using UnityEngine.UI; // For UI components like Slider and Text
 
 public class BasePlayer : MonoBehaviour
 {
+    private Image xpBarFill; // To access the XP bar's fill color
+    public Text xpText; // XP text for displaying XP progress
+    public Slider xpBar; // XP bar UI Slider
     public string playerName;
     public int currentLevel = 1;
     public int currentXP = 0;
     public int maxXP = 100;
     public int abilityPoints = 0;
-
+    public Animator animator; // Reference to the Animator component
     public int maxHealth = 100; // Maximum health
     public int currentHealth; // Current health
     public int healingPotions = 0; // Potion count
@@ -27,7 +30,7 @@ public class BasePlayer : MonoBehaviour
     void Start()
     {
         // Initialize health
-        currentHealth = 40;
+        currentHealth = maxHealth;
 
         // Get the fill image component of the health bar slider
         healthBarFill = healthBar.fillRect.GetComponent<Image>();
@@ -38,20 +41,75 @@ public class BasePlayer : MonoBehaviour
             healthBar.maxValue = maxHealth; // Set the maximum value of the slider
             healthBar.value = currentHealth;    // Set the initial value to full
         }
-
+        
         // Update the UI
         UpdateHealthUI();
         UpdateLevelUI();
+        UpdateXPUI();
+
+        if(currentHealth==0){
+           animator.SetTrigger("Die");
+           float fallDistance = 1.0f; // You can adjust this value to control how far down the player falls
+            Vector3 newPosition = transform.position;
+            newPosition.y -= fallDistance; // Move the player down
+            transform.position = newPosition;
+        }
+        if (xpBar != null)
+        {
+            xpBarFill = xpBar.fillRect.GetComponent<Image>(); // Get the fill image component
+            xpBar.maxValue = maxXP; // Set the maximum value of the slider
+            xpBar.value = currentXP; // Initialize the slider's value
+        }
+            // Optional: Update XP Text
+        if (xpText != null)
+        {
+            xpText.text = $"{currentXP} / {maxXP} XP";
+        }
     }
 
+    //Test XPBar method
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            GainXP(10); 
+        }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            GainXP(30); 
+        }
+    }
+
+    public void GainXP(int xp)
+        {
+            currentXP += xp;
+
+            while (currentXP >= maxXP && currentLevel < 4)
+            {
+                currentXP -= maxXP;
+                LevelUp();
+            }
+            if(currentXP>=400){
+                currentXP=400;
+            }
+
+            UpdateXPUI();
+        }
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Ensure health doesn't go below 0
-
+        
         if (currentHealth == 0)
         {
-            Die();
+             animator.SetTrigger("Die");
+             float fallDistance = 5.0f; // You can adjust this value to control how far down the player falls
+                Vector3 newPosition = transform.position;
+                newPosition.y -= fallDistance; // Move the player down
+                transform.position = newPosition;
+        }
+        else{
+            animator.SetTrigger("Hit");
         }
 
         UpdateHealthUI();
@@ -64,7 +122,7 @@ public class BasePlayer : MonoBehaviour
             healingPotions--;
             currentHealth += maxHealth / 2; // Heal by 50% of max health
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
+            animator.SetTrigger("Drink");
             RemovePotionIcon();
             UpdateHealthUI();
         }
@@ -74,21 +132,15 @@ public class BasePlayer : MonoBehaviour
         }
     }
 
-
-
-    private void Die()
-    {
-        Debug.Log($"{playerName} has died. Game Over!");
-        // Game over logic, e.g., restart scene or show game over UI
-    }
-
     private void UpdateHealthUI()
     {
         if (healthBar != null)
-        {
+        {   
             healthBar.value = currentHealth; // Update slider value based on current health
         }
-
+        if(currentHealth==0){
+            animator.SetTrigger("Die");
+        }
         if (healthText != null)
         {
             healthText.text = $"{currentHealth} / {maxHealth}"; // Update health text
@@ -110,36 +162,68 @@ public class BasePlayer : MonoBehaviour
         }
     }
 
-    public void GainXP(int xp)
-    {
-        currentXP += xp;
-
-        while (currentXP >= maxXP && currentLevel < 4)
-        {
-            currentXP -= maxXP;
-            LevelUp();
-        }
-    }
-
-    private void LevelUp()
+private void LevelUp()
     {
         currentLevel++;
         abilityPoints++;
         maxHealth += 100; // Increase max health by 100
         currentHealth = maxHealth; // Refill health to the new max
-        maxXP = currentLevel * 100; // Update max XP for next level
+        maxXP = currentLevel * 100; // Update max XP for the next level
 
-        // Update UI
+        // Update UI elements
         if (healthBar != null)
         {
-            healthBar.maxValue = maxHealth; // Update slider max value to reflect new health cap
-            healthBar.value = maxHealth;    // Reset slider to full
+            healthBar.maxValue = maxHealth;
+            healthBar.value = maxHealth;
+        }
+
+        if (xpBar != null)
+        {
+            xpBar.maxValue = maxXP;
+            xpBar.value = currentXP; // Apply leftover XP
         }
 
         UpdateHealthUI();
+        UpdateXPUI();
         UpdateLevelUI();
 
         Debug.Log($"{playerName} leveled up to Level {currentLevel}!");
+    }
+    private void UpdateXPUI()
+    {
+        if (xpBar != null)
+        {
+            xpBar.value = currentXP; // Update the slider's progress
+        }
+
+        if (xpBarFill != null)
+        {
+            float xpPercentage = (float)currentXP / maxXP;
+
+            if (xpPercentage == 0f)
+            {
+                xpBarFill.color = Color.clear; // Less than 25%, transparent
+            }
+
+            // Change color based on XP percentage (example: green to yellow to red)
+            else if (xpPercentage < 0.5f)
+            {
+                xpBarFill.color = Color.red; // Less than 50%, red
+            }
+            else if (xpPercentage < 0.75f)
+            {
+                xpBarFill.color = Color.yellow; // Between 50% and 75%, yellow
+            }
+            else
+            {
+                xpBarFill.color = Color.green; // Above 75%, green
+            }
+        }
+
+        if (xpText != null)
+        {
+            xpText.text = $"{currentXP} / {maxXP} XP"; // Update the text display
+        }
     }
 
     private void UpdateLevelUI()
@@ -167,6 +251,7 @@ public class BasePlayer : MonoBehaviour
     {
         GameObject newPotionIcon = Instantiate(potionIconPrefab, potionUIParent);
         Button button = newPotionIcon.GetComponent<Button>();
+
         if (button != null)
         {
             button.onClick.AddListener(() => Heal());
@@ -177,9 +262,24 @@ public class BasePlayer : MonoBehaviour
     {
         if (potionUIParent.childCount > 0)
         {
+            animator.SetTrigger("Drink");
             Destroy(potionUIParent.GetChild(0).gameObject);
         }
     }
+    private void Die()
+    {
+        Debug.Log($"{playerName} has died. Game Over!");
 
+        if (animator != null)
+        {
+            animator.SetTrigger("Die"); // Assumes you have a "Die" trigger in the Animator
+        }
+        else
+        {
+            Debug.LogError("Animator not assigned for the player!");
+        }
+
+        // Additional game-over logic (e.g., disable controls, restart level, show UI, etc.)
+    }
 
 }
