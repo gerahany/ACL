@@ -121,9 +121,19 @@ IEnumerator CreateClone(Vector3 position)
         {
             if (collider.CompareTag("Demon") || collider.CompareTag("Minion"))
             {
-                // Apply damage logic to the enemies (e.g., damage them)
-                Debug.Log(collider.name + " hit by explosion!");
-                // Example: collider.GetComponent<Enemy>().TakeDamage(explosionDamage);
+                 minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
+                demonhealthbar demonHealth = collider.GetComponent<demonhealthbar>();
+
+                if (minionhealthbar != null)
+                {
+                    minionhealthbar.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
+                    Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
+                }
+                if (demonHealth != null)
+                {
+                    demonHealth.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
+                    Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
+                }
             }
         }
 
