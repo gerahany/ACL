@@ -38,36 +38,12 @@ public class Arrow : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision collision)
-{
-    Debug.Log("Collision Detected with: " + collision.gameObject.name); 
-    Debug.Log($"Collision Tag: {collision.gameObject.tag}");
-    if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion"))
     {
-        Debug.Log("Enemy hit!");
-        // Check if the enemy has a MinionHealth component
-        minionhealthbar minionHealth = collision.gameObject.GetComponent<minionhealthbar>();
-        demonhealthbar demonHealth = collision.gameObject.GetComponent<demonhealthbar>();
-
-        if (minionHealth != null)
+        // Destroy the arrow on valid collision
+        if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion") ||
+            collision.gameObject.CompareTag("Breakable") || collision.gameObject.CompareTag("Flooring"))
         {
-            Debug.Log("fire hit the minion!");
-
-            minionHealth.TakeDamage(5);  // Apply 5 damage to the minion
-            Debug.Log($"fire hit {collision.gameObject.name} for 5 damage!");
-        }
-        else if (demonHealth != null)
-        {
-            Debug.Log("fire hit the minion!");
-
-            demonHealth.TakeDamage(5);  // Apply 5 damage to the minion
-            Debug.Log($"Bash hit {collision.gameObject.name} for 5 damage!");
+            Destroy(gameObject);
         }
     }
-
-    // Destroy only if it's a valid collision
-    if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion") || collision.gameObject.CompareTag("Breakable") || collision.gameObject.CompareTag("Flooring"))
-    {
-        Destroy(gameObject);
-    }
-}
 }
