@@ -15,10 +15,11 @@ public class CloneAbility : MonoBehaviour
 
     private bool isCooldownActive = false;
 
+    public BasePlayer basePlayer;
    void Update()
 {
     // Activate clone ability when pressing "Q"
-    if (Input.GetKeyDown(KeyCode.Q) && canUseClone && !isCooldownActive && !isSelectingPosition)
+    if (Input.GetKeyDown(KeyCode.Q) && canUseClone && !isCooldownActive && !isSelectingPosition && basePlayer.IsWildUnlocked)
     {
         isSelectingPosition = true;
     }

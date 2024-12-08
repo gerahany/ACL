@@ -19,10 +19,10 @@ public class Barbarian : BasePlayer
     private float shieldCooldown = 10f;
     private float ironMaelstromCooldown = 5f;
     private float chargeCooldown = 10f;
+    public BasePlayer basePlayer;
     public bool shieldActive = false;
     private float shieldDuration = 3f;
     public ParticleSystem bloodEffect;
-
     private bool isAbilityInProgress = false; // Flag to track if an ability is in progress
     private bool isIronMaelstromActive = false; // Flag for Iron Maelstrom ability
     private bool isChargeActive = false; // Flag for Charge ability
@@ -57,19 +57,22 @@ public class Barbarian : BasePlayer
 
     void HandleAbilityInput()
 {
-    if (Input.GetKeyDown(KeyCode.W)) UseShield();
+    if (Input.GetKeyDown(KeyCode.W) && basePlayer.IsDefensiveUnlocked) UseShield();
+
+    //Debug.Log(defensiveUnlocked);
+    //Debug.Log(IsDefensiveAbilityUnlocked());
 
     if (!isAbilityInProgress)
     {
         // Check for ability activation first
-        if (Input.GetKeyDown(KeyCode.Q) && !isAbilityInProgress)  // Wild Card
+        if (Input.GetKeyDown(KeyCode.Q) && !isAbilityInProgress && basePlayer.IsWildUnlocked )  // Wild Card
         {
             isIronMaelstromActive = true;  // Mark the ability as active
             isAbilityInProgress = true;  // Lock other abilities
             Debug.Log("Wild Card activated. Right-click to specify position.");
         }
 
-        if (Input.GetKeyDown(KeyCode.E) && !isAbilityInProgress)  // Ultimate
+        if (Input.GetKeyDown(KeyCode.E) && !isAbilityInProgress && basePlayer.IsUltimateUnlocked )  // Ultimate
         {
             isChargeActive = true;  // Mark the ability as active
             isAbilityInProgress = true;  // Lock other abilities
@@ -98,6 +101,8 @@ public class Barbarian : BasePlayer
 
         // Unlock ability usage after handling right-click
         isAbilityInProgress = false;
+    } else {
+        if (Input.GetMouseButtonDown(1)) UseBash();
     }
 }
 

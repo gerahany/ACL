@@ -20,6 +20,11 @@ public class BasePlayer : MonoBehaviour
     private bool wildUnlocked = false;
     private bool ultimateUnlocked = false;
 
+    public bool IsBasicUnlocked => basicUnlocked;
+    public bool IsDefensiveUnlocked => defensiveUnlocked;
+    public bool IsWildUnlocked => wildUnlocked;
+    public bool IsUltimateUnlocked => ultimateUnlocked;
+
     // Button text components for color changes
     public TMP_Text basicButtonText;
     public TMP_Text defensiveButtonText;
@@ -396,6 +401,9 @@ private void UpdateAbilityButtons()
 }
 
 
-
+public bool IsBasicAbilityUnlocked() => basicUnlocked;
+    public bool IsDefensiveAbilityUnlocked() => defensiveUnlocked;
+    public bool IsWildAbilityUnlocked() => wildUnlocked;
+    public bool IsUltimateAbilityUnlocked() => ultimateUnlocked;
 
     }

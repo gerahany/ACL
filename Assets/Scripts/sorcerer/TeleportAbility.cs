@@ -10,7 +10,7 @@ public class TeleportAbility : MonoBehaviour
     public float maxTeleportDistance = 15f;
     private NavMeshAgent agent; // Reference to the sorcerer's NavMeshAgent (for movement)
 
-    
+    public BasePlayer basePlayer;
 
     void Start()
     {
@@ -20,7 +20,7 @@ public class TeleportAbility : MonoBehaviour
     void Update()
     {
         // Activate teleport ability when pressing "W"
-        if (Input.GetKeyDown(KeyCode.W) && canTeleport && !isSelectingPosition)
+        if (Input.GetKeyDown(KeyCode.W) && canTeleport && !isSelectingPosition && basePlayer.IsDefensiveUnlocked)
         {
             StartSelectingPosition();
         }

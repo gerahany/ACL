@@ -9,12 +9,13 @@ public class InfernoAbility : MonoBehaviour
     public float ringDuration = 5f; // Duration of the flame ring
     private bool canUseInferno = true; // Can the ability be used?
     private bool isSelectingPosition = false; // Is the player selecting a position?
+    public BasePlayer basePlayer;
     
 
     void Update()
     {
         // Activate Inferno when pressing "E" and not in cooldown
-        if (Input.GetKeyDown(KeyCode.E) && canUseInferno && !isSelectingPosition)
+        if (Input.GetKeyDown(KeyCode.E) && canUseInferno && !isSelectingPosition && basePlayer.IsUltimateUnlocked)
         {
             StartSelectingPosition();
         }
