@@ -24,6 +24,9 @@ public class Barbarian : BasePlayer
     public ParticleSystem bloodEffect;
 
     private bool isAbilityInProgress = false; // Flag to track if an ability is in progress
+    private bool isIronMaelstromActive = false; // Flag for Iron Maelstrom ability
+    private bool isChargeActive = false; // Flag for Charge ability
+
 
     void Update()
     {
@@ -53,16 +56,61 @@ public class Barbarian : BasePlayer
 
 
     void HandleAbilityInput()
-    {   if (Input.GetKeyDown(KeyCode.W)) UseShield();
-        if (!isAbilityInProgress)
+{
+    if (Input.GetKeyDown(KeyCode.W)) UseShield();
+
+    if (!isAbilityInProgress)
+    {
+        // Check for ability activation first
+        if (Input.GetKeyDown(KeyCode.Q) && !isAbilityInProgress)  // Wild Card
         {
-            if (Input.GetMouseButtonDown(1)) UseBash(); // Right-click for Bash
-            // W for Shield
-            if (Input.GetKeyDown(KeyCode.Q)) UseIronMaelstrom(); // Q for Iron Maelstrom
-            if (Input.GetKeyDown(KeyCode.E)) UseCharge(); // E for Charge
+            isIronMaelstromActive = true;  // Mark the ability as active
+            isAbilityInProgress = true;  // Lock other abilities
+            Debug.Log("Wild Card activated. Right-click to specify position.");
+        }
+
+        if (Input.GetKeyDown(KeyCode.E) && !isAbilityInProgress)  // Ultimate
+        {
+            isChargeActive = true;  // Mark the ability as active
+            isAbilityInProgress = true;  // Lock other abilities
+            Debug.Log("Ultimate activated. Right-click to specify position.");
         }
     }
 
+    // Handle right-click once abilities are activated
+    if (Input.GetMouseButtonDown(1) && isAbilityInProgress)
+    {
+        Vector3 targetPosition = GetMouseWorldPosition();
+        
+        // Use the ability based on the state
+        if (isIronMaelstromActive)  // If Wild Card (Iron Maelstrom) is active
+        {
+            //Debug.Log("Qpress");
+            UseIronMaelstrom(targetPosition);  // Use ability at the specified position
+            isIronMaelstromActive = false;  // Reset flag after use
+        }
+        else if (isChargeActive)  // If Ultimate (Charge) is active
+        {
+            //Debug.Log("Epress");
+            UseCharge(targetPosition);  // Use ability at the specified position
+            isChargeActive = false;  // Reset flag after use
+        }
+
+        // Unlock ability usage after handling right-click
+        isAbilityInProgress = false;
+    }
+}
+
+Vector3 GetMouseWorldPosition()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            return hit.point;  // Return the world position of the mouse click
+        }
+        return Vector3.zero;  // Return zero if nothing is hit
+    }
     // 1. Bash Ability (Single Target Attack)
    void UseBash()
 {
@@ -230,9 +278,11 @@ void ApplyIronMaelstromDamage(Vector3 position)
     }
 
     // 3. Iron Maelstrom Ability (AoE Attack)
-    void UseIronMaelstrom()
+    void UseIronMaelstrom(Vector3 targetPosition)
     {
-        if (!IsAbilityOnCooldown("IronMaelstrom") && !isAbilityInProgress)
+        Debug.Log("Iron");
+        Debug.Log(isAbilityInProgress);
+        if (!IsAbilityOnCooldown("IronMaelstrom") )
         {
             isAbilityInProgress = true;
             ApplyIronMaelstromDamage(transform.position);
@@ -246,10 +296,11 @@ void ApplyIronMaelstromDamage(Vector3 position)
             StartAbilityCooldown("IronMaelstrom", ironMaelstromCooldown);
         }
     }
+    
 
-    void UseCharge()
+    void UseCharge(Vector3 targetPosition)
     {
-        if (!IsAbilityOnCooldown("Charge") && !isAbilityInProgress)
+        if (!IsAbilityOnCooldown("Charge") )
         {
             isAbilityInProgress = true;
             // Stop the NavMeshAgent to prevent pathfinding interference
@@ -258,11 +309,12 @@ void ApplyIronMaelstromDamage(Vector3 position)
 
             // Start the charge animation and movement
             animator.SetBool("isCharging", true);
-            StartCoroutine(ChargeForward());
+            StartCoroutine(ChargeForward(targetPosition));
 
             StartAbilityCooldown("Charge", chargeCooldown);
         }
     }
+    
     void ApplyChargeDamage()
 {
     // Get all colliders in a small radius (for collision detection during the charge)
@@ -292,10 +344,10 @@ void ApplyIronMaelstromDamage(Vector3 position)
         }
     }
 }
-   IEnumerator ChargeForward()
+   IEnumerator ChargeForward(Vector3 targetPosition)
 {
     float chargeSpeed = 15f;          // Charge speed
-    float chargeDistance = 20f;       // Distance to charge
+    float chargeDistance = Vector3.Distance(transform.position, targetPosition);       // Distance to charge
     float traveledDistance = 0f;
     Vector3 startPosition = transform.position;
 
@@ -316,8 +368,8 @@ void ApplyIronMaelstromDamage(Vector3 position)
         }
 
         // Move the player forward
-        transform.position += chargeDirection * chargeSpeed * Time.deltaTime;
-        traveledDistance = Vector3.Distance(startPosition, transform.position);
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, chargeSpeed * Time.deltaTime);
+        traveledDistance = Vector3.Distance(transform.position, targetPosition);
         
         // Apply damage to enemies in the charge path
         ApplyChargeDamage();
