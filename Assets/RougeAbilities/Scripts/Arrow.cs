@@ -39,10 +39,12 @@ public class Arrow : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("one");
         // Destroy the arrow on valid collision
         if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion") ||
             collision.gameObject.CompareTag("Breakable") || collision.gameObject.CompareTag("Flooring"))
         {
+            Debug.Log("two");
             Destroy(gameObject);
         }
     }
