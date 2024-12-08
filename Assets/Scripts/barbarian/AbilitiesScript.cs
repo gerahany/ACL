@@ -349,10 +349,15 @@ void ApplyIronMaelstromDamage(Vector3 position)
         }
     }
 }
-   IEnumerator ChargeForward(Vector3 targetPosition)
+IEnumerator ChargeForward(Vector3 targetPosition)
 {
     float chargeSpeed = 15f;          // Charge speed
+    float maxChargeDistance = 20f;    // Maximum allowed charge distance
     float chargeDistance = Vector3.Distance(transform.position, targetPosition);       // Distance to charge
+    
+    // Limit the charge distance to the maximum allowed distance
+    chargeDistance = Mathf.Min(chargeDistance, maxChargeDistance);
+
     float traveledDistance = 0f;
     Vector3 startPosition = transform.position;
 
@@ -374,7 +379,7 @@ void ApplyIronMaelstromDamage(Vector3 position)
 
         // Move the player forward
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, chargeSpeed * Time.deltaTime);
-        traveledDistance = Vector3.Distance(transform.position, targetPosition);
+        traveledDistance = Vector3.Distance(transform.position, startPosition);  // Update traveled distance from start position
         
         // Apply damage to enemies in the charge path
         ApplyChargeDamage();
@@ -397,6 +402,8 @@ void ApplyIronMaelstromDamage(Vector3 position)
     Debug.Log("Charge complete, or timeout reached, staying at final position.");
     isAbilityInProgress = false;  // Unlock ability usage after charge is complete
 }
+
+
 
     IEnumerator WaitForAbilityCompletion()
     {

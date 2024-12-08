@@ -79,33 +79,47 @@ public class DashAbility : MonoBehaviour
         return false; // The position is not walkable
     }
 
-    IEnumerator Dash()
+IEnumerator Dash()
+{
+    isDashing = true; // Start the dash
+    canDash = false; // Disable further dashes during cooldown
+    float originalSpeed = agent.speed; // Store the original speed
+    agent.speed *= dashSpeedMultiplier; // Increase speed for dash
+
+    // Define the maximum dash distance
+    float maxDashDistance = 15f; // Maximum allowed dash distance
+
+    // Calculate the distance to the target position
+    float dashDistance = Vector3.Distance(transform.position, dashTargetPosition);
+
+    // Limit the dash distance to the maximum allowed
+    if (dashDistance > maxDashDistance)
     {
-        isDashing = true; // Start the dash
-        canDash = false; // Disable further dashes during cooldown
-        float originalSpeed = agent.speed; // Store the original speed
-        agent.speed *= dashSpeedMultiplier; // Increase speed for dash
-
-        Debug.Log("Dashing to target!");
-
-        // Move the agent toward the target position
-        agent.SetDestination(dashTargetPosition);
-
-        // Wait until the agent reaches the target position
-        while (Vector3.Distance(transform.position, dashTargetPosition) > agent.stoppingDistance)
-        {
-            yield return null; // Wait until the next frame
-        }
-
-        // Reset speed after dash
-        agent.speed = originalSpeed;
-
-        Debug.Log("Dash completed!");
-        isDashing = false; // Dash ends here
-
-        // Start cooldown after dash finishes
-        StartCoroutine(DashCooldown());
+        // Adjust dash target position to ensure the dash does not exceed maxDashDistance
+        Vector3 direction = (dashTargetPosition - transform.position).normalized;
+        dashTargetPosition = transform.position + direction * maxDashDistance;
     }
+
+    Debug.Log("Dashing to target!");
+
+    // Move the agent toward the target position
+    agent.SetDestination(dashTargetPosition);
+
+    // Wait until the agent reaches the target position
+    while (Vector3.Distance(transform.position, dashTargetPosition) > agent.stoppingDistance)
+    {
+        yield return null; // Wait until the next frame
+    }
+
+    // Reset speed after dash
+    agent.speed = originalSpeed;
+
+    Debug.Log("Dash completed!");
+    isDashing = false; // Dash ends here
+
+    // Start cooldown after dash finishes
+    StartCoroutine(DashCooldown());
+}
 
     IEnumerator DashCooldown()
     {
