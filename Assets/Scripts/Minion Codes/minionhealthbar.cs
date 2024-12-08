@@ -8,7 +8,6 @@ public class minionhealthbar : MonoBehaviour
     private List<GameObject> dashes = new List<GameObject>();
     public Animator animator;
     private int maxHealth = 20;
-
     private bool isDead = false;
     private int currentHealth;
 
@@ -57,6 +56,7 @@ public class minionhealthbar : MonoBehaviour
     // Reduce heal
 public void TakeDamage(int damage)
     {
+        Debug.Log("hidamage");
         if (currentHealth > 0 && !isDead) // Avoid taking damage if already dead
         {
             currentHealth -= damage;
@@ -72,6 +72,17 @@ public void TakeDamage(int damage)
         // Check if health reaches 0 and trigger DieMinion animation
         if (currentHealth <= 0 && !isDead)
         {
+            BasePlayer activePlayer = GameManager.ActivePlayer;
+
+            if (activePlayer != null)
+            {
+                activePlayer.GainXP(10); // Award 10 XP to the active player
+            }
+            else
+            {
+                Debug.LogError("No active player found!");
+            }
+
             isDead = true; // Mark demon as dead
             if (animator != null && currentHealth <= 0 )
             {

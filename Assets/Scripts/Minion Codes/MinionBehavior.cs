@@ -11,7 +11,6 @@ public class MinionBehavior : MonoBehaviour
     private NavMeshAgent agent;
     private Animator animator;
     private static GameObject globalTarget;
-
     private float punchDistance = 2f; // Distance to start punching
      private float punchCooldown = 7f; // Time between punches
     private bool isPunching = false;
@@ -132,6 +131,7 @@ public class MinionBehavior : MonoBehaviour
 
     public void Die()
     {
+        
         Destroy(gameObject);
     }
 

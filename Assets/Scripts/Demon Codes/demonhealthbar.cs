@@ -74,6 +74,17 @@ public void TakeDamage(int damage)
         if (currentHealth <= 0 && !isDead)
         {
             isDead = true; // Mark demon as dead
+             BasePlayer activePlayer = GameManager.ActivePlayer;
+
+            if (activePlayer != null)
+            {
+                activePlayer.GainXP(30); // Award 10 XP to the active player
+            }
+            else
+            {
+                Debug.LogError("No active player found!");
+            }
+
             if (animator != null)
             {
                 animator.SetTrigger("DieDemon"); // Trigger the death animation

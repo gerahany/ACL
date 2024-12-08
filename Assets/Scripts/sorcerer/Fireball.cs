@@ -5,8 +5,6 @@ public class Fireball : MonoBehaviour
     public float speed = 3f;  // Speed of the fireball
     public float damage = 50f;  // Damage dealt to the enemy upon impact
     public float lifetime = 10f;
-    
-
     private Vector3 direction;
     private ParticleSystem fireballParticles;
 
@@ -17,7 +15,7 @@ public class Fireball : MonoBehaviour
 
     void Start()
     {
-                // Get the ParticleSystem component from the fireball object
+        // Get the ParticleSystem component from the fireball object
         fireballParticles = GetComponentInChildren<ParticleSystem>();
         
         // Destroy fireball after its lifetime expires
@@ -38,6 +36,8 @@ public class Fireball : MonoBehaviour
 
 private void OnCollisionEnter(Collision collision)
 {
+    Debug.Log("Collision Detected with: " + collision.gameObject.name); 
+    Debug.Log($"Collision Tag: {collision.gameObject.tag}");
     if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion"))
     {
         Debug.Log("Enemy hit!");
@@ -47,14 +47,14 @@ private void OnCollisionEnter(Collision collision)
 
         if (minionHealth != null)
         {
-            Debug.Log("Bash hit the minion!");
+            Debug.Log("fire hit the minion!");
 
             minionHealth.TakeDamage(5);  // Apply 5 damage to the minion
-            Debug.Log($"Bash hit {collision.gameObject.name} for 5 damage!");
+            Debug.Log($"fire hit {collision.gameObject.name} for 5 damage!");
         }
         else if (demonHealth != null)
         {
-            Debug.Log("Bash hit the minion!");
+            Debug.Log("fire hit the minion!");
 
             demonHealth.TakeDamage(5);  // Apply 5 damage to the minion
             Debug.Log($"Bash hit {collision.gameObject.name} for 5 damage!");

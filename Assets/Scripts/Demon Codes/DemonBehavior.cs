@@ -90,7 +90,7 @@ void Update()
     // Track agent's current position and destination
     if (agent != null)
     {
-        Debug.Log($"Agent Position: {agent.transform.position}, Destination: {agent.destination}");
+        //Debug.Log($"Agent Position: {agent.transform.position}, Destination: {agent.destination}");
     }
 
     if (isAggressive && targetPlayer != null)
@@ -119,21 +119,21 @@ void Update()
         float distanceToCamp = Vector3.Distance(transform.position, initialPosition);
 
         // Log distance to initial position
-        Debug.Log($"Distance to camp: {distanceToCamp}");
+        //Debug.Log($"Distance to camp: {distanceToCamp}");
 
         if (distanceToCamp <= 1f)
         {
             // Only stop if we are very close to the destination
-            agent.isStopped = true;
+//            agent.isStopped = true;
             animator.SetBool("IsWalking", false);
-            Debug.Log("Demon reached camp, stopping.");
+            //Debug.Log("Demon reached camp, stopping.");
         }
         else
         {
             // Ensure the agent continues to update towards the destination
-            agent.isStopped = false;
+           // agent.isStopped = false;
             animator.SetBool("IsWalking", true);
-            Debug.Log("Demon moving back to camp.");
+           // Debug.Log("Demon moving back to camp.");
         }
     }
 }

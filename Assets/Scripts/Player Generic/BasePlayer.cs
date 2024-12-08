@@ -10,6 +10,10 @@ public class BasePlayer : MonoBehaviour
     public int currentLevel = 1;
     public int currentXP = 0;
     public int currentAP = 0;
+    public Button basicButton;     // Button for Basic ability
+    public Button defensiveButton; // Button for Defensive ability
+    public Button wildButton;      // Button for Wild ability
+    public Button ultimateButton;  // Button for Ultimate ability
     public int maxXP = 100;
     public int abilityPoints = 0;
     public Animator animator; // Reference to the Animator component
@@ -179,6 +183,7 @@ public class BasePlayer : MonoBehaviour
 private void LevelUp()
     {
         currentLevel++;
+        currentAP++;
         abilityPoints++;
         maxHealth += 100; // Increase max health by 100
         currentHealth = maxHealth; // Refill health to the new max
@@ -255,6 +260,7 @@ private void LevelUp()
         {
             healingPotions++;
             AddPotionIcon();
+            UpdateLevelUI();
         }
         else
         {
