@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -20,6 +21,11 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
+
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return; // Exit the function if the click is on a UI element
+        }
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

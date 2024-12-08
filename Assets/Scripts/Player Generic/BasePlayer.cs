@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI; // For UI components like Slider and Text
-
+using TMPro;
 public class BasePlayer : MonoBehaviour
 {
     private Image xpBarFill; // To access the XP bar's fill color
@@ -9,13 +9,26 @@ public class BasePlayer : MonoBehaviour
     public string playerName;
     public int currentLevel = 1;
     public int currentXP = 0;
-    public int currentAP = 0;
     public Button basicButton;     // Button for Basic ability
     public Button defensiveButton; // Button for Defensive ability
     public Button wildButton;      // Button for Wild ability
     public Button ultimateButton;  // Button for Ultimate ability
+
+    // Tracks the state of abilities
+    private bool basicUnlocked = true;
+    private bool defensiveUnlocked = false;
+    private bool wildUnlocked = false;
+    private bool ultimateUnlocked = false;
+
+    // Button text components for color changes
+    public TMP_Text basicButtonText;
+    public TMP_Text defensiveButtonText;
+    public TMP_Text wildButtonText;
+    public TMP_Text ultimateButtonText;
+
     public int maxXP = 100;
     public int abilityPoints = 0;
+    private Button[] abilityButtons;
     public Animator animator; // Reference to the Animator component
     public int maxHealth = 100; // Maximum health
     public int currentHealth; // Current health
@@ -29,7 +42,6 @@ public class BasePlayer : MonoBehaviour
     public Text healthText;  // Legacy Text for health display
     public Text levelText;   // Legacy Text for level display
 
-    // To access the fill color of the health bar
     private Image healthBarFill;
 
     void Start()
@@ -70,20 +82,43 @@ public class BasePlayer : MonoBehaviour
         {
             xpText.text = $"{currentXP} / {maxXP} XP";
         }
+        SetupButton(basicButton, basicButtonText, basicUnlocked);
+        SetupButton(defensiveButton, defensiveButtonText, defensiveUnlocked);
+        SetupButton(wildButton, wildButtonText, wildUnlocked);
+        SetupButton(ultimateButton, ultimateButtonText, ultimateUnlocked);
     }
 
     //Test XPBar method
-    void Update()
+    private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.X))
         {
-            GainXP(10); 
+            GainXP(100); 
+             UpdateXPUI();
         }
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.D))
         {
-            GainXP(30); 
+            TakeDamage(20); 
+            UpdateHealthUI();
         }
-    }
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            defensiveUnlocked = true;
+            defensiveButtonText.color = Color.black;
+            wildUnlocked = true;
+            wildButtonText.color = Color.black;
+            ultimateUnlocked = true;
+            ultimateButtonText.color = Color.black;
+            UpdateAbilityButtons();
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            abilityPoints++;
+            UpdateLevelUI();
+            UpdateAbilityButtons();
+        }
+        }
+       
 
     public void GainXP(int xp)
         {
@@ -177,14 +212,13 @@ public class BasePlayer : MonoBehaviour
             {
                 healthBarFill.color = Color.green; // If health is above 50%, make it green
             }
-        }
-    }
-
-private void LevelUp()
+        }}
+    
+    private void LevelUp()
     {
         currentLevel++;
-        currentAP++;
         abilityPoints++;
+        //abilityPoints++;
         maxHealth += 100; // Increase max health by 100
         currentHealth = maxHealth; // Refill health to the new max
         maxXP = currentLevel * 100; // Update max XP for the next level
@@ -205,6 +239,7 @@ private void LevelUp()
         UpdateHealthUI();
         UpdateXPUI();
         UpdateLevelUI();
+        UpdateAbilityButtons();
 
         Debug.Log($"{playerName} leveled up to Level {currentLevel}!");
     }
@@ -224,19 +259,20 @@ private void LevelUp()
                 xpBarFill.color = Color.clear; // Less than 25%, transparent
             }
 
-            // Change color based on XP percentage (example: green to yellow to red)
-            else if (xpPercentage < 0.5f)
-            {
-                xpBarFill.color = Color.red; // Less than 50%, red
-            }
-            else if (xpPercentage < 0.75f)
-            {
-                xpBarFill.color = Color.yellow; // Between 50% and 75%, yellow
-            }
-            else
-            {
-                xpBarFill.color = Color.green; // Above 75%, green
-            }
+            // // Change color based on XP percentage (example: green to yellow to red)
+            // else if (xpPercentage < 0.5f)
+            // {
+            //     xpBarFill.color = Color.red; // Less than 50%, red
+            // }
+            // else if (xpPercentage < 0.75f)
+            // {
+            //     xpBarFill.color = Color.yellow; // Between 50% and 75%, yellow
+            // }
+            // else
+            // {
+            //     xpBarFill.color = Color.green; // Above 75%, green
+            // }
+            xpBarFill.color = Color.blue;
         }
 
         if (xpText != null)
@@ -249,7 +285,7 @@ private void LevelUp()
     {
         if (levelText != null)
         {
-            levelText.text = $"Level:{currentLevel}   Ability Pts:{currentAP} Potions:{healingPotions}";
+            levelText.text = $"Level:{currentLevel}   Ability Pts:{abilityPoints} Potions:{healingPotions}";
         }
     }
 
@@ -301,5 +337,65 @@ private void LevelUp()
 
         // Additional game-over logic (e.g., disable controls, restart level, show UI, etc.)
     }
+private void SetupButton(Button button, TMP_Text buttonText, bool isUnlocked)
+{
+    if (button != null && buttonText != null)
+    {
+        button.interactable = isUnlocked;
 
+        // Set text color based on unlocked state
+        buttonText.color = isUnlocked ? Color.black : Color.grey;
+
+        // Add click listener
+        button.onClick.AddListener(() => OnAbilityButtonClicked(button));
+    }
 }
+
+    private void OnAbilityButtonClicked(Button clickedButton)
+    {
+    if (clickedButton == defensiveButton && !defensiveUnlocked && abilityPoints > 0)
+    {
+        defensiveUnlocked = true;
+        abilityPoints--;
+        defensiveButtonText.color = Color.black;
+    }
+    else if (clickedButton == wildButton && !wildUnlocked && abilityPoints > 0)
+    {
+        wildUnlocked = true;
+        abilityPoints--;
+        wildButtonText.color = Color.black;
+    }
+    else if (clickedButton == ultimateButton && !ultimateUnlocked && abilityPoints > 0)
+    {
+        ultimateUnlocked = true;
+        abilityPoints--;
+        ultimateButtonText.color = Color.black;
+    }
+
+    // Update button states and ability points UI
+    UpdateAbilityButtons();
+    UpdateLevelUI(); // Update ability points display
+    }
+
+private void UpdateAbilityButtons()
+{
+    // Update text color for locked but highlightable buttons
+    if (!defensiveUnlocked){
+        defensiveButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
+        defensiveButton.interactable = abilityPoints > 0 ? true : false;
+    }
+    if (!wildUnlocked){
+        wildButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
+        wildButton.interactable = abilityPoints > 0 ? true : false;
+        }
+
+    if (!ultimateUnlocked){
+        ultimateButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
+        ultimateButton.interactable = abilityPoints > 0 ? true : false;
+        }
+}
+
+
+
+
+    }
