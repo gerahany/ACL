@@ -7,6 +7,7 @@ public class DemonBehavior : MonoBehaviour
     private DemonSpawner campManager;
     private Vector3 initialPosition;
     private bool isAggressive = false;
+
     private GameObject targetPlayer;
     private bool hasExploded = false;
     private NavMeshAgent agent;
@@ -125,7 +126,7 @@ void Update()
         {
             // Only stop if we are very close to the destination
 //            agent.isStopped = true;
-            animator.SetBool("IsWalking", false);
+            animator.SetBool("IsWalking", true);
             //Debug.Log("Demon reached camp, stopping.");
         }
         else

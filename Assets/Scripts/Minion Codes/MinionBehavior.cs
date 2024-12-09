@@ -81,6 +81,8 @@ public class MinionBehavior : MonoBehaviour
         else if (!isAggressive && Vector3.Distance(transform.position, initialPosition) < 1f)
         {
             UpdateAnimation("IsWalking", false);
+            UpdateAnimation("IsIdle", true);
+
         }
     }
 

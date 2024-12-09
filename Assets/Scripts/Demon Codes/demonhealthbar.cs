@@ -84,9 +84,11 @@ public void TakeDamage(int damage)
             {
                 Debug.LogError("No active player found!");
             }
+            DemonSpawner randDemon = FindObjectOfType<DemonSpawner>();
 
-            if (animator != null)
+            if (animator != null && randDemon!=null)
             {
+                randDemon.RemoveAggressiveDemon(gameObject);
                 animator.SetTrigger("DieDemon"); // Trigger the death animation
             }
 

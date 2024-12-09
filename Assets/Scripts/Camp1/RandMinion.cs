@@ -12,8 +12,6 @@ public class RandMinion : MonoBehaviour
     public Vector3 zRange = new Vector3(400, 500, 0); // Z range (min, max, unused)
     public float yPosition = 17; // Fixed Y position
 
-    public float campRadius = 35f; // Detection range for the player
-    public float followRadius = 70f; // Radius at which minions stop following the player
     public int maxAggressiveMinions = 5; // Maximum number of minions that can attack at once
 
     private List<Vector3> usedPositions = new List<Vector3>();
@@ -30,6 +28,24 @@ public class RandMinion : MonoBehaviour
     {
         DetectPlayer();
         HandleMinionBehavior();
+    }
+
+    // Remove a minion from the aggressive list and check if a new minion can be added
+    public void RemoveAggressiveMinion(GameObject minion)
+    {
+        if (aggressiveMinions.Contains(minion))
+        {
+            aggressiveMinions.Remove(minion);
+            Debug.Log($"{minion.name} removed from aggressive list.");
+
+        }
+        if (minions.Contains(minion))
+        {
+            minions.Remove(minion);
+            Debug.Log($"{minion.name} removed from aggressive list.");
+
+        }
+        AddAggressiveMinion();
     }
 
     void SpawnMinions()
@@ -79,46 +95,88 @@ public class RandMinion : MonoBehaviour
 
     void DetectPlayer()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, campRadius);
-        foreach (Collider collider in colliders)
+        if (player == null)
         {
-            if (collider.CompareTag("Player")) // Check for the player by tag
+            Collider[] colliders = Physics.OverlapBox(
+                new Vector3((xRange.x + xRange.y) / 2, yPosition, (zRange.x + zRange.y) / 2),
+                new Vector3((xRange.y - xRange.x) / 2, 10f, (zRange.y - zRange.x) / 2),
+                Quaternion.identity);
+
+            foreach (Collider collider in colliders)
             {
-                player = collider.gameObject; // Detect player
-                return;
+                if (collider.CompareTag("Player")) // Check for the player by tag
+                {
+                    player = collider.gameObject; // Detect player
+                    return;
+                }
             }
         }
-        player = null; // No player detected
+        else
+        {
+            // If player is already detected, check if they're still within the zone
+            if (!IsPlayerInRange())
+            {
+                player = null; // Reset player if outside the defined range
+            }
+        }
+    }
+
+    bool IsPlayerInRange()
+    {
+        if (player == null) return false;
+
+        Vector3 playerPos = player.transform.position;
+        return playerPos.x >= xRange.x && playerPos.x <= xRange.y && playerPos.z >= zRange.x && playerPos.z <= zRange.y;
     }
 
     void HandleMinionBehavior()
     {
-        foreach (GameObject minion in minions)
+        if (player != null && IsPlayerInRange()) // Only handle minions if player is within range
         {
-            MinionBehavior behavior = minion.GetComponent<MinionBehavior>();
+            // Ensure aggressive minions count is checked and updated regularly
+            AddAggressiveMinion(); // Ensure we try to add new aggressive minions if space is available
 
-            if (player != null)
+            // Go through all minions and make them aggressive if needed
+            foreach (GameObject minion in minions)
             {
-                float distanceToPlayer = Vector3.Distance(minion.transform.position, player.transform.position);
+                MinionBehavior behavior = minion.GetComponent<MinionBehavior>();
 
-                if (distanceToPlayer <= campRadius && aggressiveMinions.Count < maxAggressiveMinions)
+                if (behavior != null && !aggressiveMinions.Contains(minion) && aggressiveMinions.Count < maxAggressiveMinions)
                 {
-                    if (!aggressiveMinions.Contains(minion))
-                    {
-                        aggressiveMinions.Add(minion); // Add to aggressive list
-                        behavior.SetAggressive(player);
-                    }
-                }
-                else if (distanceToPlayer > followRadius)
-                {
-                    behavior.ReturnToCamp();
-                    aggressiveMinions.Remove(minion); // Remove from aggressive list
+                    aggressiveMinions.Add(minion);
+                    behavior.SetAggressive(player);
                 }
             }
-            else
+        }
+        else
+        {
+            // No player detected or player out of range, reset all behaviors
+            foreach (GameObject minion in minions)
             {
-                behavior.ReturnToCamp();
-                aggressiveMinions.Remove(minion); // Reset all behaviors
+                MinionBehavior behavior = minion.GetComponent<MinionBehavior>();
+                if (behavior != null)
+                {
+                    behavior.ReturnToCamp();
+                }
+            }
+            aggressiveMinions.Clear();
+        }
+    }
+
+    // This method ensures that we add a minion to the aggressive list when there's space
+    void AddAggressiveMinion()
+    {
+        if (aggressiveMinions.Count < maxAggressiveMinions)
+        {
+            foreach (GameObject minion in minions)
+            {
+                MinionBehavior behavior = minion.GetComponent<MinionBehavior>();
+                if (behavior != null && !aggressiveMinions.Contains(minion))
+                {
+                    aggressiveMinions.Add(minion);
+                    behavior.SetAggressive(player);
+                    return; // Exit once a minion is added
+                }
             }
         }
     }

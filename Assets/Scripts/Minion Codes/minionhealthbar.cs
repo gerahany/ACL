@@ -84,8 +84,11 @@ public void TakeDamage(int damage)
             }
 
             isDead = true; // Mark demon as dead
-            if (animator != null && currentHealth <= 0 )
+            RandMinion randMinion = FindObjectOfType<RandMinion>();
+           
+            if (animator != null && currentHealth <= 0 && randMinion != null)
             {
+                randMinion.RemoveAggressiveMinion(gameObject);
                 animator.SetTrigger("DieMinion"); // Trigger the death animation
             }
 

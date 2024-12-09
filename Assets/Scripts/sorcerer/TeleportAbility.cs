@@ -9,7 +9,7 @@ public class TeleportAbility : MonoBehaviour
     private bool isSelectingPosition = false; // Flag to track if position is being selected
     public float maxTeleportDistance = 15f;
     private NavMeshAgent agent; // Reference to the sorcerer's NavMeshAgent (for movement)
-
+    public ParticleSystem teleportEffectPrefab;
     public BasePlayer basePlayer;
 
     void Start()
@@ -55,7 +55,7 @@ public class TeleportAbility : MonoBehaviour
             {
                 // Start the teleportation
                 Teleport(limitedPosition);
-
+                ShowTeleportEffect();
                 // Start the cooldown
                 StartCoroutine(TeleportCooldown());
             }
@@ -107,5 +107,17 @@ public class TeleportAbility : MonoBehaviour
         canTeleport = false;
         yield return new WaitForSeconds(teleportCooldown);
         canTeleport = true;
+    }
+    void ShowTeleportEffect()
+    {
+        // Create the particle effect at the player's head position
+        Vector3 headPosition = transform.position + Vector3.up * 2f; // Adjust this value to match the head height
+        ParticleSystem effect = Instantiate(teleportEffectPrefab, headPosition, Quaternion.identity);
+        
+        // Play the particle effect
+        effect.Play();
+
+        // Destroy the effect after 2 seconds
+        Destroy(effect.gameObject, 2f);
     }
 }

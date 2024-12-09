@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class DemonSpawner : MonoBehaviour
 {
-   
+
     public GameObject demonPrefab; // Assign your 3D Minion model prefab in the Inspector
     public GameObject healthBarPrefab; // Assign a prefab for the health bar in the Inspector
     public int demonCount = 2; // Number of demons to spawn
@@ -12,8 +12,6 @@ public class DemonSpawner : MonoBehaviour
     public Vector3 zRange = new Vector3(400, 500, 0); // Z range (min, max, unused)
     public float yPosition = 17; // Fixed Y position
 
-    public float campRadius = 35f; // Detection range for the player
-    public float followRadius = 70f; // Radius at which demons stop following the player
     public int maxAggressiveDemons = 1; // Maximum number of demons that can attack at once
 
     private List<Vector3> usedPositions = new List<Vector3>();
@@ -29,7 +27,30 @@ public class DemonSpawner : MonoBehaviour
     void Update()
     {
         DetectPlayer();
-        HandleDemonBehavior();
+        
+            HandleDemonBehavior();
+        
+
+        
+            HanldenotAgg();
+        
+
+
+
+    }
+    public void RemoveAggressiveDemon(GameObject demon)
+    {
+        if (aggressiveDemons.Contains(demon))
+        {
+            aggressiveDemons.Remove(demon);
+
+        }
+        if (demons.Contains(demon))
+        {
+            demons.Remove(demon);
+
+        }
+        AddAggressiveDemon();
     }
 
     void SpawnDemons()
@@ -79,50 +100,121 @@ public class DemonSpawner : MonoBehaviour
 
     void DetectPlayer()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, campRadius);
-        foreach (Collider collider in colliders)
+        if (player == null)
         {
-            if (collider.CompareTag("Player")) // Check for the player by tag
+            Collider[] colliders = Physics.OverlapBox(
+                new Vector3((xRange.x + xRange.y) / 2, yPosition, (zRange.x + zRange.y) / 2),
+                new Vector3((xRange.y - xRange.x) / 2, 10f, (zRange.y - zRange.x) / 2),
+                Quaternion.identity);
+
+            foreach (Collider collider in colliders)
             {
-                player = collider.gameObject; // Detect player
-                return;
+                if (collider.CompareTag("Player")) // Check for the player by tag
+                {
+                    player = collider.gameObject; // Detect player
+                    return;
+                }
             }
         }
-        player = null; // No player detected
+        else
+        {
+            // If player is already detected, check if they're still within the zone
+            if (!IsPlayerInRange())
+            {
+                player = null; // Reset player if outside the defined range
+            }
+        }
     }
+
+    bool IsPlayerInRange()
+    {
+        if (player == null) return false;
+
+        Vector3 playerPos = player.transform.position;
+        return playerPos.x >= xRange.x && playerPos.x <= xRange.y && playerPos.z >= zRange.x && playerPos.z <= zRange.y;
+    }
+
 
     private float rotationTimer = 0f; // Timer to track elapsed time
 
     void HandleDemonBehavior()
     {
-        foreach (GameObject demon in demons)
+        if (player != null && IsPlayerInRange()) // Only handle demons if player is within range
         {
-            DemonBehavior behavior = demon.GetComponent<DemonBehavior>();
+            // Ensure aggressive demons count is checked and updated regularly
+            AddAggressiveDemon(); // Ensure we try to add new aggressive demons if space is available
 
-            if (player != null)
+            // Go through all demons and make them aggressive if needed
+            foreach (GameObject demon in demons)
             {
-                float distanceToPlayer = Vector3.Distance(demon.transform.position, player.transform.position);
+                DemonBehavior behavior = demon.GetComponent<DemonBehavior>();
+                
 
-                if (distanceToPlayer <= campRadius && aggressiveDemons.Count < maxAggressiveDemons)
+                if (behavior != null && !aggressiveDemons.Contains(demon) && aggressiveDemons.Count < maxAggressiveDemons)
                 {
-                    if (!aggressiveDemons.Contains(demon))
-                    {
-                        aggressiveDemons.Add(demon); // Add to aggressive list
-                        behavior.SetAggressive(player);
-                    }
-                }
-                else if (distanceToPlayer > followRadius)
-                {
-                    behavior.ReturnToCamp();
-                    aggressiveDemons.Remove(demon); // Remove from aggressive list
+                    aggressiveDemons.Add(demon);
+                    behavior.SetAggressive(player);
                 }
             }
-            else
+        }
+        else
+        {
+            // No player detected or player out of range, reset all behaviors
+            foreach (GameObject demon in demons)
             {
-                if (aggressiveDemons.Contains(demon))
+
+                DemonBehavior behavior = demon.GetComponent<DemonBehavior>();
+                if (behavior != null)
                 {
-                    aggressiveDemons.Remove(demon); // Reset all behaviors
+                    if (aggressiveDemons.Contains(demon))
+                        behavior.ReturnToCamp();
                 }
+
+            }
+            aggressiveDemons.Clear();
+        }
+    }
+
+    // This method ensures that we add a demon to the aggressive list when there's space
+    void AddAggressiveDemon()
+    {
+        if (aggressiveDemons.Count < maxAggressiveDemons)
+        {
+            foreach (GameObject demon in demons)
+            {
+                DemonBehavior behavior = demon.GetComponent<DemonBehavior>();
+                if (behavior != null && !aggressiveDemons.Contains(demon))
+                {
+                    aggressiveDemons.Add(demon);
+                    behavior.SetAggressive(player);
+                    return; // Exit once a demon is added
+                }
+            }
+        }
+    }
+    void HanldenotAgg()
+    {
+        foreach (GameObject demon in demons)
+        {
+            if (!IsPlayerInRange())
+            {
+                // Ensure demon stays within camp bounds and rotates randomly
+                Vector3 demonPosition = demon.transform.position;
+                demonPosition.x = Mathf.Clamp(demonPosition.x, xRange.x, xRange.y);
+                demonPosition.z = Mathf.Clamp(demonPosition.z, zRange.x, zRange.y);
+                demon.transform.position = demonPosition;
+
+                // Update rotation every 3 seconds if the demon is not aggressive
+                rotationTimer += Time.deltaTime;
+                if (rotationTimer >= 3f)
+                {
+                    rotationTimer = 0f; // Reset the timer
+                    float randomRotationY = Random.Range(0, 180);
+                    demon.transform.rotation = Quaternion.Euler(0, randomRotationY, 0);
+                }
+            }
+            else if (!aggressiveDemons.Contains(demon) && IsPlayerInRange())
+            {
 
                 // Ensure demon stays within camp bounds and rotates randomly
                 Vector3 demonPosition = demon.transform.position;
@@ -139,8 +231,8 @@ public class DemonSpawner : MonoBehaviour
                     demon.transform.rotation = Quaternion.Euler(0, randomRotationY, 0);
                 }
             }
-        }
+            }
+
+
     }
-
-
 }

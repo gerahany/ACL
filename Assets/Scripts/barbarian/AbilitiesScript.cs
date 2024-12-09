@@ -8,11 +8,13 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 public class Barbarian : BasePlayer
 {
     public Animator animator;
     public ParticleSystem chargeEffect;
     public NavMeshAgent agent;
+    //public ParticleSystem shieldEffect;
     public GameObject shieldBall; 
     private Dictionary<string, float> abilityCooldowns = new Dictionary<string, float>();
     private float bashCooldown = 1f;
@@ -26,14 +28,72 @@ public class Barbarian : BasePlayer
     private bool isAbilityInProgress = false; // Flag to track if an ability is in progress
     private bool isIronMaelstromActive = false; // Flag for Iron Maelstrom ability
     private bool isChargeActive = false; // Flag for Charge ability
+    public TMP_Text bashCooldownText;
+    public TMP_Text shieldCooldownText;
+    public TMP_Text ironMaelstromCooldownText;
+    public TMP_Text chargeCooldownText;
 
+
+    void Start()
+    {
+        bashCooldownText.text = "OK";
+        shieldCooldownText.text = "OK";
+        ironMaelstromCooldownText.text = "OK";
+        chargeCooldownText.text = "OK";
+    }
 
     void Update()
     {
         HandleAbilityInput();
         UpdateAnimations();
+        UpdateCooldownTexts();
+    }
+   void UpdateCooldownTexts()
+{
+    // Bash
+    if (IsAbilityOnCooldown("Bash"))
+    {
+        float remainingTime = abilityCooldowns["Bash"] - Time.time;
+        bashCooldownText.text = Mathf.Ceil(remainingTime).ToString(); // Countdown
+    }
+    else
+    {
+        bashCooldownText.text = "OK";
     }
 
+    // Shield
+    if (IsAbilityOnCooldown("Shield"))
+    {
+        float remainingTime = abilityCooldowns["Shield"] - Time.time;
+        shieldCooldownText.text = Mathf.Ceil(remainingTime).ToString(); // Countdown
+    }
+    else
+    {
+        shieldCooldownText.text = "OK";
+    }
+
+    // Iron Maelstrom
+    if (IsAbilityOnCooldown("IronMaelstrom"))
+    {
+        float remainingTime = abilityCooldowns["IronMaelstrom"] - Time.time;
+        ironMaelstromCooldownText.text = Mathf.Ceil(remainingTime).ToString(); // Countdown
+    }
+    else
+    {
+        ironMaelstromCooldownText.text = "OK";
+    }
+
+    // Charge
+    if (IsAbilityOnCooldown("Charge"))
+    {
+        float remainingTime = abilityCooldowns["Charge"] - Time.time;
+        chargeCooldownText.text = Mathf.Ceil(remainingTime).ToString(); // Countdown
+    }
+    else
+    {
+        chargeCooldownText.text = "OK";
+    }
+}
     void UpdateAnimations()
     {
         bool isMoving = agent.remainingDistance > agent.stoppingDistance && agent.velocity.sqrMagnitude > 0.1f;
@@ -254,33 +314,33 @@ void ApplyIronMaelstromDamage(Vector3 position)
 
 
     // 2. Shield Ability (Defensive)
-    void UseShield()
+void UseShield()
+{
+    if (!IsAbilityOnCooldown("Shield"))  // Check cooldown here
     {
-        if (!IsAbilityOnCooldown("Shield"))
-        {
-             // Shield can be activated even if other abilities are in progress
-            shieldActive = true;
-            shieldBall.SetActive(true);  // Activate the shield visually
-            animator.SetTrigger("Shield");  // Trigger the shield animation
-            Debug.Log($"{playerName} activated Shield!");
-            StartCoroutine(ShieldCoroutine());
-            
-        }
+        shieldActive = true;
+        shieldBall.SetActive(true); 
+        //shieldEffect.Play(); // Activate the shield visually
+        animator.SetTrigger("Shield");  // Trigger the shield animation
+        Debug.Log($"{playerName} activated Shield!");
+        StartCoroutine(ShieldCoroutine());
     }
+}
 
-    IEnumerator ShieldCoroutine()
-    {
-        // Shield remains active for 3 seconds
-        yield return new WaitForSeconds(shieldDuration);
 
-        // Deactivate the shield after the duration
-        shieldActive = false;
-        shieldBall.SetActive(false);
-        Debug.Log("Shield expired!");
+IEnumerator ShieldCoroutine()
+{
+    // Shield remains active for 3 seconds
+    yield return new WaitForSeconds(shieldDuration);
 
-        isAbilityInProgress = false; 
-        StartAbilityCooldown("Shield", shieldCooldown); // Unlock ability usage after shield is done
-    }
+    // Deactivate the shield after the duration
+    shieldActive = false;
+    shieldBall.SetActive(false);
+    Debug.Log("Shield expired!");
+    //shieldEffect.Stop();
+    StartAbilityCooldown("Shield", shieldCooldown); // Start cooldown after shield ends
+}
+
 
     // 3. Iron Maelstrom Ability (AoE Attack)
     void UseIronMaelstrom(Vector3 targetPosition)
@@ -297,11 +357,23 @@ void ApplyIronMaelstromDamage(Vector3 position)
             
             // Apply AoE damage logic here
             StartCoroutine(TriggerBloodEffect());
-            StartCoroutine(WaitForAbilityCompletion());
-            StartAbilityCooldown("IronMaelstrom", ironMaelstromCooldown);
+            StartCoroutine(WaitForAbilityCompletionWithDelay());
+            //StartAbilityCooldown("IronMaelstrom", ironMaelstromCooldown);
         }
     }
-    
+    IEnumerator WaitForAbilityCompletionWithDelay()
+    {
+        // Wait for a short period before starting cooldown (e.g., 1 second delay)
+        yield return new WaitForSeconds(3f);
+
+        // Now the ability cooldown starts
+        StartAbilityCooldown("IronMaelstrom", ironMaelstromCooldown);
+        
+        // Wait for the full animation or ability to complete
+        yield return new WaitForSeconds(ironMaelstromCooldown);
+
+        isAbilityInProgress = false;  // Unlock ability usage after the cooldown period
+    }
 
     void UseCharge(Vector3 targetPosition)
     {
@@ -311,12 +383,12 @@ void ApplyIronMaelstromDamage(Vector3 position)
             // Stop the NavMeshAgent to prevent pathfinding interference
             agent.isStopped = true;
             agent.updateRotation = false;  // Prevent rotation adjustments by NavMeshAgent
-
+            chargeEffect.Play();
             // Start the charge animation and movement
             animator.SetBool("isCharging", true);
             StartCoroutine(ChargeForward(targetPosition));
 
-            StartAbilityCooldown("Charge", chargeCooldown);
+            
         }
     }
     
@@ -368,6 +440,10 @@ IEnumerator ChargeForward(Vector3 targetPosition)
     // Cache the initial forward direction for the entire charge duration
     Vector3 chargeDirection = transform.forward.normalized;
 
+    // Start the charge effect at the player's feet
+    chargeEffect.transform.position = transform.position;  // Position at player's feet
+    chargeEffect.Play();  // Start the particle system
+
     while (traveledDistance < chargeDistance)
     {
         // Timeout check
@@ -381,6 +457,9 @@ IEnumerator ChargeForward(Vector3 targetPosition)
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, chargeSpeed * Time.deltaTime);
         traveledDistance = Vector3.Distance(transform.position, startPosition);  // Update traveled distance from start position
         
+        // Update the charge effect position to follow the player
+        chargeEffect.transform.position = transform.position;  // Keep the effect at player's feet
+
         // Apply damage to enemies in the charge path
         ApplyChargeDamage();
 
@@ -399,16 +478,21 @@ IEnumerator ChargeForward(Vector3 targetPosition)
     animator.SetBool("isCharging", false);
     animator.SetTrigger("isIdle");
 
+    // Stop the charge effect after the charge is done
+    chargeEffect.Stop();
+
     Debug.Log("Charge complete, or timeout reached, staying at final position.");
+    StartAbilityCooldown("Charge", chargeCooldown);
     isAbilityInProgress = false;  // Unlock ability usage after charge is complete
 }
+
 
 
 
     IEnumerator WaitForAbilityCompletion()
     {
         // Wait until the current animation completes (adjust this time based on your animation)
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(10f);
 
         isAbilityInProgress = false;  // Unlock ability usage after the ability completes
     }
@@ -425,6 +509,7 @@ IEnumerator ChargeForward(Vector3 targetPosition)
 
     private void StartAbilityCooldown(string abilityName, float cooldownDuration)
     {
+        
         abilityCooldowns[abilityName] = Time.time + cooldownDuration;
     }
 }
