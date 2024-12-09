@@ -13,6 +13,7 @@ public class BasePlayer : MonoBehaviour
     public Button defensiveButton; // Button for Defensive ability
     public Button wildButton;      // Button for Wild ability
     public Button ultimateButton;  // Button for Ultimate ability
+    private int runeCount = 0; // To track the number of collected rune fragments
 
     // Tracks the state of abilities
     private bool basicUnlocked = true;
@@ -122,8 +123,13 @@ public class BasePlayer : MonoBehaviour
             UpdateLevelUI();
             UpdateAbilityButtons();
         }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            Heal(); // Use a potion when F is pressed
         }
-       
+    }
+
+   
 
     public void GainXP(int xp)
         {
@@ -310,13 +316,7 @@ public class BasePlayer : MonoBehaviour
     }
     private void AddPotionIcon()
     {
-        GameObject newPotionIcon = Instantiate(potionIconPrefab, potionUIParent);
-        Button button = newPotionIcon.GetComponent<Button>();
-
-        if (button != null)
-        {
-            button.onClick.AddListener(() => Heal());
-        }
+        Instantiate(potionIconPrefab, potionUIParent);
     }
 
     private void RemovePotionIcon()
@@ -382,23 +382,31 @@ private void SetupButton(Button button, TMP_Text buttonText, bool isUnlocked)
     UpdateLevelUI(); // Update ability points display
     }
 
-private void UpdateAbilityButtons()
-{
-    // Update text color for locked but highlightable buttons
-    if (!defensiveUnlocked){
-        defensiveButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
-        defensiveButton.interactable = abilityPoints > 0 ? true : false;
-    }
-    if (!wildUnlocked){
-        wildButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
-        wildButton.interactable = abilityPoints > 0 ? true : false;
+    private void UpdateAbilityButtons()
+    {
+        // Update text color for locked but highlightable buttons
+        if (!defensiveUnlocked)
+        {
+            defensiveButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
+            defensiveButton.interactable = abilityPoints > 0 ? true : false;
+        }
+        if (!wildUnlocked)
+        {
+            wildButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
+            wildButton.interactable = abilityPoints > 0 ? true : false;
         }
 
-    if (!ultimateUnlocked){
-        ultimateButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
-        ultimateButton.interactable = abilityPoints > 0 ? true : false;
+        if (!ultimateUnlocked)
+        {
+            ultimateButtonText.color = abilityPoints > 0 ? Color.white : Color.grey;
+            ultimateButton.interactable = abilityPoints > 0 ? true : false;
         }
-}
+    }
+    public void addrune()
+    {
+        runeCount++;
+        Debug.Log($" fragment {runeCount}");
+    }
 
 
 public bool IsBasicAbilityUnlocked() => basicUnlocked;

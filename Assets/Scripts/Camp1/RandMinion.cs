@@ -11,6 +11,7 @@ public class RandMinion : MonoBehaviour
     public Vector3 xRange = new Vector3(600, 650, 0); // X range (min, max, unused)
     public Vector3 zRange = new Vector3(400, 500, 0); // Z range (min, max, unused)
     public float yPosition = 17; // Fixed Y position
+    public GameObject runeFragmentPrefab; // Assign the rune fragment prefab in the Inspector
 
     public int maxAggressiveMinions = 5; // Maximum number of minions that can attack at once
 
@@ -18,6 +19,7 @@ public class RandMinion : MonoBehaviour
     private List<GameObject> minions = new List<GameObject>();
     private GameObject player; // Detected player object
     private List<GameObject> aggressiveMinions = new List<GameObject>();
+    private bool runeFragmentSpawned = false; // To track if a rune fragment has been spawned
 
     void Start()
     {
@@ -28,9 +30,40 @@ public class RandMinion : MonoBehaviour
     {
         DetectPlayer();
         HandleMinionBehavior();
+        CheckAndSpawnRuneFragment();
+    }
+    void CheckAndSpawnRuneFragment()
+    {
+        if (!runeFragmentSpawned && AreNoMinionsOrDemonsInCamp())
+        {
+            // Spawn rune fragment at the center of the camp
+            Vector3 runePosition = new Vector3((xRange.x + xRange.y) / 2, 20, (zRange.x + zRange.y) / 2);
+            Quaternion runeRotation = Quaternion.Euler(-90f, 0f, 0f); // 90 degrees on the X-axis
+
+            Instantiate(runeFragmentPrefab, runePosition, runeRotation);
+            runeFragmentSpawned = true;
+        }
+    }
+    bool AreNoMinionsOrDemonsInCamp()
+    {
+        // Check for minions and demons in the defined camp radius
+        Collider[] minionsInRange = Physics.OverlapBox(
+            new Vector3((xRange.x + xRange.y) / 2, yPosition, (zRange.x + zRange.y) / 2),
+            new Vector3((xRange.y - xRange.x) / 2, 10f, (zRange.y - zRange.x) / 2),
+            Quaternion.identity);
+
+        foreach (Collider collider in minionsInRange)
+        {
+            if (collider.CompareTag("Minion") || collider.CompareTag("Demon"))
+            {
+                return false; // If there are any minions or demons, return false
+            }
+        }
+
+        return true; // No minions or demons found, return true
     }
 
-    // Remove a minion from the aggressive list and check if a new minion can be added
+   
     public void RemoveAggressiveMinion(GameObject minion)
     {
         if (aggressiveMinions.Contains(minion))

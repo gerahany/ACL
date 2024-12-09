@@ -15,16 +15,7 @@ public class CampManager : MonoBehaviour
         }
     }
 
-    public void EnemyDefeated()
-    {
-        remainingEnemies--;
-        Debug.Log("Enemy defeated. Remaining enemies: " + remainingEnemies);
-
-        if (remainingEnemies <= 0 && runeFragment != null)
-        {
-            runeFragment.GetComponent<RuneFragmentScript>().ActivateFragment();
-        }
-    }
+   
 
     private int CountEnemies()
     {

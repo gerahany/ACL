@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class SorcererAbilities : MonoBehaviour
 {
@@ -8,13 +9,20 @@ public class SorcererAbilities : MonoBehaviour
     public Animator sorcererAnimator; // Animator for casting animation
     public float raycastRange = 100f; // Maximum range for detecting targets
     private Vector3 targetPosition; // Store the position of the valid target
-
     private bool canCastFireball = true; // Track if the fireball can be cast
     private float fireballCooldown = 1f; // Cooldown time (in seconds)
-
+    private float teleportCooldown = 10f;
+    public BasePlayer basePlayer;
     private bool isTeleporting = false; // Flag to track if teleport is activated
     private bool teleportRequested = false; // Flag to track if W + right-click is requested
+    public TMP_Text fireballCooldownText;
+    public TMP_Text teleportCooldownText;
 
+    void Start()
+    {
+        fireballCooldownText.text = "OK";
+        teleportCooldownText.text = "OK";
+    }
     void Update()
     {
         // Check if "W" is pressed to enable teleportation mode
@@ -92,23 +100,53 @@ public class SorcererAbilities : MonoBehaviour
 
     IEnumerator CooldownFireball()
     {
-        // Disable fireball casting during cooldown
         canCastFireball = false;
-        yield return new WaitForSeconds(fireballCooldown); // Wait for the cooldown period
-        canCastFireball = true; // Enable fireball casting again
+        float remainingTime = fireballCooldown;
+
+        while (remainingTime > 0)
+        {
+            fireballCooldownText.text = $"{remainingTime:F1}s";
+            remainingTime -= Time.deltaTime;
+            yield return null;
+        }
+
+        fireballCooldownText.text = "OK";
+        canCastFireball = true;
     }
+
+    IEnumerator CooldownTeleport()
+    {
+        isTeleporting = true;
+        teleportRequested = false; // Reset teleport request flag
+        float remainingTime = teleportCooldown;
+
+        while (remainingTime > 0)
+        {
+            // Display cooldown time as whole seconds
+            teleportCooldownText.text = $"{Mathf.FloorToInt(remainingTime)}s";
+            remainingTime -= Time.deltaTime;
+            yield return null;
+        }
+
+        teleportCooldownText.text = "OK";
+        isTeleporting = false;
+    }
+
 
     IEnumerator Teleport()
     {
         // Disable fireball casting temporarily while teleporting
-        canCastFireball = false;
+        if (basePlayer.IsDefensiveUnlocked)
+        {
+            canCastFireball = false;
+            // Simulate teleportation (e.g., move to target position or other logic)
+            Debug.Log("Teleporting...");
+            yield return new WaitForSeconds(1f); // Adjust duration as needed
+            StartCoroutine(CooldownTeleport());
+            // Reset after teleportation
+            teleportRequested = false; // Reset the teleport request flag
+            canCastFireball = true; // Re-enable fireball casting after teleportation
+        }
 
-        // Simulate teleportation (e.g., move to target position or other logic)
-        Debug.Log("Teleporting...");
-        yield return new WaitForSeconds(1f); // Adjust duration as needed
-
-        // Reset after teleportation
-        teleportRequested = false; // Reset the teleport request flag
-        canCastFireball = true; // Re-enable fireball casting after teleportation
     }
 }

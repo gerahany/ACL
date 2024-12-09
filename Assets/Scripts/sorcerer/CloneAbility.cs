@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
-
+using TMPro;
 public class CloneAbility : MonoBehaviour
 {
     public GameObject clonePrefab; // Prefab of the clone
@@ -12,25 +12,30 @@ public class CloneAbility : MonoBehaviour
     public GameObject explosionEffectPrefab;
     private bool canUseClone = true; // Tracks if the ability is on cooldown
     private bool isSelectingPosition = false; // Tracks if the player is selecting the position
-
     private bool isCooldownActive = false;
-
+    public TMP_Text CloneCooldownText;
     public BasePlayer basePlayer;
-   void Update()
- {
-    // Activate clone ability when pressing "Q"
-    if (Input.GetKeyDown(KeyCode.Q) && canUseClone && !isCooldownActive && !isSelectingPosition && basePlayer.IsWildUnlocked)
+
+    void Start()
     {
-        isSelectingPosition = true;
+        CloneCooldownText.text = "OK";
     }
 
-    // If the player is selecting a position, listen for right-click to create the clone
-    if (isSelectingPosition && Input.GetMouseButtonDown(1) && canUseClone && !isCooldownActive) // Right-click (button 1)
+    void Update()
     {
-        Debug.Log(canUseClone);
-        TryCreateClone();
+        // Activate clone ability when pressing "Q"
+        if (Input.GetKeyDown(KeyCode.Q) && canUseClone && !isCooldownActive && !isSelectingPosition && basePlayer.IsWildUnlocked)
+        {
+            isSelectingPosition = true;
+        }
+
+        // If the player is selecting a position, listen for right-click to create the clone
+        if (isSelectingPosition && Input.GetMouseButtonDown(1) && canUseClone && !isCooldownActive) // Right-click (button 1)
+        {
+            Debug.Log(canUseClone);
+            TryCreateClone();
+        }
     }
- }
 
 
     // void StartSelectingPosition()
@@ -40,35 +45,35 @@ public class CloneAbility : MonoBehaviour
     // }
 
     void TryCreateClone()
-{
-    // Make sure you can't try to create a clone if it's on cooldown
-    if (!canUseClone) return;
-
-    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-    RaycastHit hit;
-
-    if (Physics.Raycast(ray, out hit))
     {
-        Vector3 targetPosition = hit.point;
+        // Make sure you can't try to create a clone if it's on cooldown
+        if (!canUseClone) return;
 
-        // Check if the position is walkable
-        if (IsWalkable(targetPosition))
-        {
-            // Create the clone
-            StartCoroutine(CreateClone(targetPosition));
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
 
-            // Start cooldown
-            StartCoroutine(CloneCooldown());
-        }
-        else
+        if (Physics.Raycast(ray, out hit))
         {
-            Debug.Log("Target position is not walkable.");
+            Vector3 targetPosition = hit.point;
+
+            // Check if the position is walkable
+            if (IsWalkable(targetPosition))
+            {
+                // Create the clone
+                StartCoroutine(CreateClone(targetPosition));
+
+                // Start cooldown
+                //StartCoroutine(CloneCooldown());
+            }
+            else
+            {
+                Debug.Log("Target position is not walkable.");
+            }
         }
+
+        // End the position selection
+        isSelectingPosition = false;
     }
-
-    // End the position selection
-    isSelectingPosition = false;
-}
 
 
     bool IsWalkable(Vector3 targetPosition)
@@ -78,41 +83,41 @@ public class CloneAbility : MonoBehaviour
         return NavMesh.SamplePosition(targetPosition, out hit, 1f, NavMesh.AllAreas);
     }
 
-IEnumerator CreateClone(Vector3 position)
-{
-    
-    // Instantiate the clone at the specified position
-    GameObject clone = Instantiate(clonePrefab, position, Quaternion.identity);
+    IEnumerator CreateClone(Vector3 position)
+    {
 
-    // Set the clone's parent to null, ensuring that it is not part of any hierarchy that might affect camera focus
-    clone.transform.SetParent(null);
+        // Instantiate the clone at the specified position
+        GameObject clone = Instantiate(clonePrefab, position, Quaternion.identity);
 
-    // Ensure the clone doesn't inherit any movement from the player (check if your player is set as the parent)
-    clone.transform.position = position; // explicitly setting the position to avoid unexpected camera behavior
+        // Set the clone's parent to null, ensuring that it is not part of any hierarchy that might affect camera focus
+        clone.transform.SetParent(null);
 
-    // Enable the clone's functionality (e.g., make enemies target it)
-    clone.tag = "Clone";
+        // Ensure the clone doesn't inherit any movement from the player (check if your player is set as the parent)
+        clone.transform.position = position; // explicitly setting the position to avoid unexpected camera behavior
 
-    Debug.Log("Clone created at position: " + position);
-    
-    MinionBehavior.SetGlobalTarget(clone);
-    DemonBehavior.SetGlobalTarget2(clone);
+        // Enable the clone's functionality (e.g., make enemies target it)
+        clone.tag = "Clone";
 
-    // Wait for the clone's duration
-    yield return new WaitForSeconds(cloneDuration);
+        Debug.Log("Clone created at position: " + position);
 
-    // Trigger the explosion effect
-    Explode(clone.transform.position);
+        MinionBehavior.SetGlobalTarget(clone);
+        DemonBehavior.SetGlobalTarget2(clone);
 
-    // Destroy the clone
-    Destroy(clone);
+        // Wait for the clone's duration
+        yield return new WaitForSeconds(cloneDuration);
 
-    MinionBehavior.RevertGlobalTarget();
-    DemonBehavior.RevertGlobalTarget2();
-}
+        // Trigger the explosion effect
+        Explode(clone.transform.position);
+
+        // Destroy the clone
+        Destroy(clone);
+
+        MinionBehavior.RevertGlobalTarget();
+        DemonBehavior.RevertGlobalTarget2();
+    }
 
 
-  void Explode(Vector3 position)
+    void Explode(Vector3 position)
     {
         Debug.Log("Explosion triggered at position: " + position);
 
@@ -126,7 +131,7 @@ IEnumerator CreateClone(Vector3 position)
         {
             if (collider.CompareTag("Demon") || collider.CompareTag("Minion"))
             {
-                 minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
+                minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
                 demonhealthbar demonHealth = collider.GetComponent<demonhealthbar>();
 
                 if (minionhealthbar != null)
@@ -144,19 +149,26 @@ IEnumerator CreateClone(Vector3 position)
 
         // Destroy the explosion effect after it finishes (use the duration from the effect's animation or lifecycle)
         Destroy(explosionEffect, 2f); // Adjust this value based on the lifetime of the explosion effect
+        StartCoroutine(CloneCooldown());
     }
 
-IEnumerator CloneCooldown()
-{
-   
-    Debug.Log(canUseClone);
-    canUseClone = false;
-    isCooldownActive = true;  // Start tracking cooldown
-    Debug.Log(canUseClone);
-    yield return new WaitForSeconds(cooldown);
-    canUseClone = true;
-    isCooldownActive = false; // End cooldown tracking
-    Debug.Log(canUseClone);
-   
-}
+    IEnumerator CloneCooldown()
+    {
+        canUseClone = false;
+        isCooldownActive = true;
+
+        float remainingTime = cooldown;
+
+        // Update cooldown text dynamically
+        while (remainingTime > 0)
+        {
+            CloneCooldownText.text = $"{Mathf.FloorToInt(remainingTime)}s";
+            remainingTime -= Time.deltaTime;
+            yield return null;
+        }
+
+        CloneCooldownText.text = "OK"; // Indicate ability is ready
+        canUseClone = true;
+        isCooldownActive = false;
+    }
 }

@@ -15,6 +15,7 @@ TagManager:
   - Breakable
   - Flooring
   - Potion
+  - RuneFragment
   layers:
   - Default
   - TransparentFX

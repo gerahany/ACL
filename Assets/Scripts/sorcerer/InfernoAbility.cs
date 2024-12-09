@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class InfernoAbility : MonoBehaviour
 {
@@ -10,7 +11,12 @@ public class InfernoAbility : MonoBehaviour
     private bool canUseInferno = true; // Can the ability be used?
     private bool isSelectingPosition = false; // Is the player selecting a position?
     public BasePlayer basePlayer;
-    
+    public TMP_Text infernoCooldownText;
+
+    void Start()
+    {
+        infernoCooldownText.text = "OK";
+    }
 
     void Update()
     {
@@ -70,7 +76,20 @@ public class InfernoAbility : MonoBehaviour
         canUseInferno = false;
         Debug.Log("Inferno cooldown started.");
         yield return new WaitForSeconds(cooldown);
+        float remainingTime = cooldown;
+
+        while (remainingTime > 0)
+        {
+            // Update cooldown text dynamically with remaining seconds
+            infernoCooldownText.text = $"{Mathf.FloorToInt(remainingTime)}s";
+            remainingTime -= Time.deltaTime;
+            yield return null;
+        }
+
+        // Cooldown is complete
+        infernoCooldownText.text = "OK";
         canUseInferno = true;
         Debug.Log("Inferno is ready.");
+        canUseInferno = true;
     }
 }
