@@ -6,6 +6,8 @@ public class DashAbility : MonoBehaviour
 {
     public float dashSpeedMultiplier = 2f; // Speed multiplier during the dash
     public float dashCooldown = 5f; // Cooldown for the dash ability
+    public GameObject dashEffectPrefab; // Particle effect prefab for the dash
+
     private bool canDash = true; // Can the Rogue dash?
     private bool isSelectingPosition = false; // Is the player selecting a dash target?
     private bool isDashing = false; // Is the Rogue currently dashing?
@@ -13,6 +15,7 @@ public class DashAbility : MonoBehaviour
     private NavMeshAgent agent; // Reference to the NavMeshAgent
     private Animator animator; // Reference to the Animator
     private Vector3 dashTargetPosition; // Position to dash toward
+    private GameObject dashEffectInstance; // Instance of the particle effect
 
     void Start()
     {
@@ -79,47 +82,43 @@ public class DashAbility : MonoBehaviour
         return false; // The position is not walkable
     }
 
-IEnumerator Dash()
-{
-    isDashing = true; // Start the dash
-    canDash = false; // Disable further dashes during cooldown
-    float originalSpeed = agent.speed; // Store the original speed
-    agent.speed *= dashSpeedMultiplier; // Increase speed for dash
-
-    // Define the maximum dash distance
-    float maxDashDistance = 15f; // Maximum allowed dash distance
-
-    // Calculate the distance to the target position
-    float dashDistance = Vector3.Distance(transform.position, dashTargetPosition);
-
-    // Limit the dash distance to the maximum allowed
-    if (dashDistance > maxDashDistance)
+    IEnumerator Dash()
     {
-        // Adjust dash target position to ensure the dash does not exceed maxDashDistance
-        Vector3 direction = (dashTargetPosition - transform.position).normalized;
-        dashTargetPosition = transform.position + direction * maxDashDistance;
+        isDashing = true; // Start the dash
+        canDash = false; // Disable further dashes during cooldown
+        float originalSpeed = agent.speed; // Store the original speed
+        agent.speed *= dashSpeedMultiplier; // Increase speed for dash
+
+        // Instantiate and activate the dash effect
+        dashEffectInstance = Instantiate(dashEffectPrefab, transform.position, Quaternion.identity);
+        dashEffectInstance.transform.parent = transform;
+
+        Debug.Log("Dashing to target!");
+
+        // Move the agent toward the target position
+        agent.SetDestination(dashTargetPosition);
+
+        // Wait until the agent reaches the target position
+        while (Vector3.Distance(transform.position, dashTargetPosition) > agent.stoppingDistance)
+        {
+            yield return null; // Wait until the next frame
+        }
+
+        // Reset speed after dash
+        agent.speed = originalSpeed;
+
+        Debug.Log("Dash completed!");
+        isDashing = false; // Dash ends here
+
+        // Stop the particle effect
+        if (dashEffectInstance != null)
+        {
+            Destroy(dashEffectInstance);
+        }
+
+        // Start cooldown after dash finishes
+        StartCoroutine(DashCooldown());
     }
-
-    Debug.Log("Dashing to target!");
-
-    // Move the agent toward the target position
-    agent.SetDestination(dashTargetPosition);
-
-    // Wait until the agent reaches the target position
-    while (Vector3.Distance(transform.position, dashTargetPosition) > agent.stoppingDistance)
-    {
-        yield return null; // Wait until the next frame
-    }
-
-    // Reset speed after dash
-    agent.speed = originalSpeed;
-
-    Debug.Log("Dash completed!");
-    isDashing = false; // Dash ends here
-
-    // Start cooldown after dash finishes
-    StartCoroutine(DashCooldown());
-}
 
     IEnumerator DashCooldown()
     {
