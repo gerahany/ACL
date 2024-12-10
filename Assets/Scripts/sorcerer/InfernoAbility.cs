@@ -75,7 +75,7 @@ public class InfernoAbility : MonoBehaviour
     {
         canUseInferno = false;
         Debug.Log("Inferno cooldown started.");
-        yield return new WaitForSeconds(cooldown);
+        yield return new WaitForSeconds(5f);
         float remainingTime = cooldown;
 
         while (remainingTime > 0)

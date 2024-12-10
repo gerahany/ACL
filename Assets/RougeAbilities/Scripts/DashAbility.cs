@@ -4,40 +4,38 @@ using UnityEngine.AI;
 
 public class DashAbility : MonoBehaviour
 {
-    public float dashSpeedMultiplier = 2f; // Speed multiplier during the dash
-    public float dashCooldown = 5f; // Cooldown for the dash ability
-    public GameObject dashEffectPrefab; // Particle effect prefab for the dash
+    public float dashSpeedMultiplier = 2f;
+    public float dashCooldown = 5f;
+    public GameObject dashEffectPrefab;
 
-    private bool canDash = true; // Can the Rogue dash?
-    private bool isSelectingPosition = false; // Is the player selecting a dash target?
-    private bool isDashing = false; // Is the Rogue currently dashing?
+    private bool canDash = true;
+    private bool isSelectingPosition = false;
+    private bool isDashing = false;
 
-    private NavMeshAgent agent; // Reference to the NavMeshAgent
-    private Animator animator; // Reference to the Animator
-    private Vector3 dashTargetPosition; // Position to dash toward
-    private GameObject dashEffectInstance; // Instance of the particle effect
+    private NavMeshAgent agent;
+    private Animator animator;
+    private Vector3 dashTargetPosition;
+    private GameObject dashEffectInstance;
 
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>(); // Get the NavMeshAgent component
-        animator = GetComponent<Animator>(); // Get the Animator component
+        agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
     {
-        // Activate dash ability when pressing "Q"
-        if (Input.GetKeyDown(KeyCode.Q) && canDash && !isSelectingPosition)
+        // Only activate ability if no other ability is active
+        if (Input.GetKeyDown(KeyCode.Q) && canDash && !AbilityManager.IsAbilityActive())
         {
             StartSelectingPosition();
         }
 
-        // If selecting position, listen for right-click to start dashing
-        if (isSelectingPosition && Input.GetMouseButtonDown(1)) // Right-click
+        if (isSelectingPosition && Input.GetMouseButtonDown(1))
         {
             TryDash();
         }
 
-        // Update the animator parameter to reflect the dashing state
         animator.SetBool("isDashing", isDashing);
     }
 
@@ -56,11 +54,10 @@ public class DashAbility : MonoBehaviour
         {
             Vector3 targetPosition = hit.point;
 
-            // Check if the target position is walkable
             if (IsWalkable(targetPosition))
             {
-                dashTargetPosition = targetPosition; // Set the target position
-                StartCoroutine(Dash()); // Begin the dash
+                dashTargetPosition = targetPosition;
+                StartCoroutine(Dash());
             }
             else
             {
@@ -68,7 +65,6 @@ public class DashAbility : MonoBehaviour
             }
         }
 
-        // Exit position selection mode
         isSelectingPosition = false;
     }
 
@@ -77,53 +73,45 @@ public class DashAbility : MonoBehaviour
         NavMeshHit hit;
         if (NavMesh.SamplePosition(targetPosition, out hit, 1f, NavMesh.AllAreas))
         {
-            return true; // The position is walkable
+            return true;
         }
-        return false; // The position is not walkable
+        return false;
     }
 
     IEnumerator Dash()
     {
-        isDashing = true; // Start the dash
-        canDash = false; // Disable further dashes during cooldown
-        float originalSpeed = agent.speed; // Store the original speed
-        agent.speed *= dashSpeedMultiplier; // Increase speed for dash
+        AbilityManager.SetAbilityActive(true); // Mark ability as active
+        isDashing = true;
+        canDash = false;
+        float originalSpeed = agent.speed;
+        agent.speed *= dashSpeedMultiplier;
 
-        // Instantiate and activate the dash effect
         dashEffectInstance = Instantiate(dashEffectPrefab, transform.position, Quaternion.identity);
         dashEffectInstance.transform.parent = transform;
 
-        Debug.Log("Dashing to target!");
-
-        // Move the agent toward the target position
         agent.SetDestination(dashTargetPosition);
 
-        // Wait until the agent reaches the target position
         while (Vector3.Distance(transform.position, dashTargetPosition) > agent.stoppingDistance)
         {
-            yield return null; // Wait until the next frame
+            yield return null;
         }
 
-        // Reset speed after dash
         agent.speed = originalSpeed;
+        isDashing = false;
 
-        Debug.Log("Dash completed!");
-        isDashing = false; // Dash ends here
-
-        // Stop the particle effect
         if (dashEffectInstance != null)
         {
             Destroy(dashEffectInstance);
         }
 
-        // Start cooldown after dash finishes
         StartCoroutine(DashCooldown());
     }
 
     IEnumerator DashCooldown()
     {
+        AbilityManager.SetAbilityActive(false); // Mark ability as inactive
         yield return new WaitForSeconds(dashCooldown);
-        canDash = true; // Enable dashing after cooldown
+        canDash = true;
         Debug.Log("Dash cooldown ended.");
     }
 }

@@ -407,7 +407,16 @@ private void SetupButton(Button button, TMP_Text buttonText, bool isUnlocked)
         runeCount++;
         Debug.Log($" fragment {runeCount}");
     }
-
+    public int getrune()
+    {
+        int r = runeCount;
+       
+        return r;
+    }
+    public void zerorune()
+    {
+        runeCount = 0;
+    }
 
 public bool IsBasicAbilityUnlocked() => basicUnlocked;
     public bool IsDefensiveAbilityUnlocked() => defensiveUnlocked;

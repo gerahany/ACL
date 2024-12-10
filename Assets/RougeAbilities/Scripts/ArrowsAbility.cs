@@ -3,24 +3,23 @@ using UnityEngine;
 
 public class ArrowsAbility : MonoBehaviour
 {
-    public GameObject arrowPrefab; // Prefab for individual arrows
-    public float arrowRainDuration = 3f; // Duration of the arrow rain
-    public float arrowSpawnInterval = 0.2f; // Time between arrow spawns
-    public float arrowDamageRadius = 5f; // Radius of the effect area
-    public LayerMask targetLayer; // Layer for minions and demons to detect
-    public int arrowDamage = 10; // Damage per arrow
-    public float rotationAngle = -90f; // The angle of rotation (adjustable)
+    public GameObject arrowPrefab;
+    public float arrowRainDuration = 3f;
+    public float arrowSpawnInterval = 0.2f;
+    public float arrowDamageRadius = 5f;
+    public LayerMask targetLayer;
+    public int arrowDamage = 10;
+    public float rotationAngle = -90f;
 
-    private bool canUseAbility = true; // Can the ability be used?
-    public float abilityCooldown = 10f; // Cooldown for the ability
+    private bool canUseAbility = true;
+    public float abilityCooldown = 10f;
 
-    // Prefab for the arrow ring
-    public GameObject arrowRingPrefab; // Arrow ring prefab to be used in the ability
+    public GameObject arrowRingPrefab;
 
     void Update()
     {
-        // Activate the ability when pressing "E"
-        if (Input.GetKeyDown(KeyCode.E) && canUseAbility)
+        // Only activate ability if no other ability is active
+        if (Input.GetKeyDown(KeyCode.E) && canUseAbility && !AbilityManager.IsAbilityActive())
         {
             StartSelectingPosition();
         }
@@ -36,7 +35,7 @@ public class ArrowsAbility : MonoBehaviour
     {
         while (true)
         {
-            if (Input.GetMouseButtonDown(1)) // Right-click
+            if (Input.GetMouseButtonDown(1))
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
@@ -46,10 +45,7 @@ public class ArrowsAbility : MonoBehaviour
                     Vector3 targetPosition = hit.point;
                     Debug.Log("Selected position for Shower of Arrows: " + targetPosition);
 
-                    // Instantiate the arrow ring prefab at the selected position
                     GameObject arrowRing = CreateArrowRing(targetPosition);
-
-                    // Start spawning arrows
                     StartCoroutine(ActivateShowerOfArrows(targetPosition, arrowRing));
                     break;
                 }
@@ -60,18 +56,15 @@ public class ArrowsAbility : MonoBehaviour
 
     GameObject CreateArrowRing(Vector3 targetPosition)
     {
-        // Instantiate the arrow ring prefab at the target position
         GameObject arrowRing = Instantiate(arrowRingPrefab, targetPosition, Quaternion.identity);
-
-        // Optionally, you can adjust the ring's height or position if necessary
         arrowRing.transform.position = new Vector3(targetPosition.x, targetPosition.y + 0.5f, targetPosition.z);
-
-        return arrowRing; // Return the instantiated arrow ring so we can destroy it later
+        return arrowRing;
     }
 
     IEnumerator ActivateShowerOfArrows(Vector3 targetPosition, GameObject arrowRing)
     {
-        canUseAbility = false; // Disable further use during cooldown
+        AbilityManager.SetAbilityActive(true); // Mark ability as active
+        canUseAbility = false;
         float elapsedTime = 0f;
 
         while (elapsedTime < arrowRainDuration)
@@ -81,28 +74,22 @@ public class ArrowsAbility : MonoBehaviour
             yield return new WaitForSeconds(arrowSpawnInterval);
         }
 
-        // Destroy the arrow ring after arrows finish raining
         Destroy(arrowRing);
+        AbilityManager.SetAbilityActive(false); // Mark ability as inactive
 
-        // Start cooldown
         yield return new WaitForSeconds(abilityCooldown);
         canUseAbility = true;
+
         Debug.Log("Shower of Arrows ability is ready.");
     }
 
     void SpawnArrow(Vector3 targetPosition)
     {
-        // Calculate random position within the ring radius
         Vector3 randomPosition = targetPosition + Random.insideUnitSphere * arrowDamageRadius;
-        randomPosition.y = targetPosition.y; // Keep the y-coordinate consistent
+        randomPosition.y = targetPosition.y;
 
-        // Instantiate the arrow prefab at a height above the target
         GameObject arrow = Instantiate(arrowPrefab, new Vector3(randomPosition.x, targetPosition.y + 10f, randomPosition.z), Quaternion.identity);
-
-        // Apply the desired rotation angle (we rotate the arrow by the given angle)
         arrow.transform.rotation *= Quaternion.Euler(0f, 0f, rotationAngle);
-
-        // Add downward force or animation for the arrow
         StartCoroutine(DropArrow(arrow, targetPosition));
     }
 
@@ -118,7 +105,7 @@ public class ArrowsAbility : MonoBehaviour
         }
 
         DealDamage(targetPosition);
-        Destroy(arrow); // Destroy the arrow after it hits
+        Destroy(arrow);
     }
 
     void DealDamage(Vector3 hitPosition)
@@ -126,18 +113,7 @@ public class ArrowsAbility : MonoBehaviour
         Collider[] hitTargets = Physics.OverlapSphere(hitPosition, arrowDamageRadius, targetLayer);
         foreach (Collider target in hitTargets)
         {
-            // Apply damage to enemies
             Debug.Log("Damaged: " + target.name);
-            // You can add logic here to interact with enemy health scripts
-        }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        // Destroy only if it's a valid collision
-        if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion") || collision.gameObject.CompareTag("Breakable") || collision.gameObject.CompareTag("Flooring"))
-        {
-            Destroy(gameObject);
         }
     }
 }
