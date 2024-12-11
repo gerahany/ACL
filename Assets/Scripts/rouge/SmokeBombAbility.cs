@@ -64,55 +64,31 @@ public class SmokeBombAbility : MonoBehaviour
         StartCoroutine(SmokeBombCooldown());
     }
 
-    IEnumerator StunEnemies(Vector3 center)
+  IEnumerator StunEnemies(Vector3 center)
 {
-    // Check if enemies are being detected
-    Collider[] hitColliders = Physics.OverlapSphere(center, stunRange, targetLayer);
-    Debug.Log($"Stun range checked at {center}. {hitColliders.Length} enemies detected.");
+    // Find all colliders within the stun range
+    Collider[] enemiesInRange = Physics.OverlapSphere(center, stunRange, targetLayer);
 
-    foreach (Collider collider in hitColliders)
+    // Loop through all enemies and apply stun
+    foreach (Collider enemyCollider in enemiesInRange)
     {
-        // Debug log to see if the right enemy is being checked
-        Debug.Log($"Checking collider: {collider.name}, Tag: {collider.tag}");
-
-        if (collider.CompareTag("Demon") || collider.CompareTag("Minion"))
+        // Check if the enemy has a MinionBehavior or DemonBehavior component and stun them
+        MinionBehavior minion = enemyCollider.GetComponent<MinionBehavior>();
+        if (minion != null)
         {
-            // Get the NavMeshAgent and Animator of the enemy
-            UnityEngine.AI.NavMeshAgent agent = collider.GetComponent<UnityEngine.AI.NavMeshAgent>();
-            Animator enemyAnimator = collider.GetComponent<Animator>();
+            minion.Stun(stunDuration); // Stun the minion for the given duration
+        }
 
-            // Ensure the components exist
-            if (agent != null && enemyAnimator != null)
-            {
-                // Log that the stun is being applied
-                Debug.Log($"Stunning enemy: {collider.name}");
-
-                // Stun the enemy by disabling movement
-                agent.isStopped = true;
-                agent.velocity = Vector3.zero;  // Make sure the agent stops moving instantly
-
-                // Trigger the stun animation
-               
-                    enemyAnimator.SetTrigger("Stunned");
-        
-                // Wait for the stun duration
-                yield return new WaitForSeconds(stunDuration);
-
-                // After stun duration, restore enemy behavior
-                agent.isStopped = false;
-                Debug.Log($"{collider.name} has recovered from the stun.");
-            }
-            else
-            {
-                // Log if either NavMeshAgent or Animator are missing
-                if (agent == null)
-                    Debug.LogWarning($"NavMeshAgent missing on enemy: {collider.name}");
-                if (enemyAnimator == null)
-                    Debug.LogWarning($"Animator missing on enemy: {collider.name}");
-            }
+        DemonBehavior demon = enemyCollider.GetComponent<DemonBehavior>();
+        if (demon != null)
+        {
+            demon.Stun(stunDuration); // Stun the demon for the given duration
         }
     }
+
+    yield return null; // Finish the method
 }
+
 
 
     IEnumerator SmokeBombCooldown()

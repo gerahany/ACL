@@ -363,6 +363,31 @@ private void ActivateSword()
         Debug.LogError("Explosion effect is not assigned.");
     }
 }
+public void Stun(float duration)
+{
+    // Stop the enemy from moving
+    agent.isStopped = true;
+
+    // Disable the ability to attack
+    isAggressive = false;
+    targetPlayer = null;
+
+    // Update animation to indicate stun
+    animator.SetTrigger("Stunned"); 
+
+    // After the stun duration, restore the enemy's behavior
+    StartCoroutine(EndStun(duration));
+}
+
+private IEnumerator EndStun(float duration)
+{
+    yield return new WaitForSeconds(duration);
+
+    // Resume normal behavior after the stun ends
+    agent.isStopped = false;
+    isAggressive = true; // Or leave this as false if you want the demon to return to its original state
+}
+
 
    
 }

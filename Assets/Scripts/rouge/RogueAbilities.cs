@@ -23,7 +23,7 @@ public class RogueAbilities : MonoBehaviour
     void Update()
     {
         // Only activate ability if no other ability is active
-        if (Input.GetMouseButtonDown(1) && canShootArrow)
+        if (Input.GetMouseButtonDown(1) && canShootArrow && !AbilityManager.IsAbilityActive())
         {
             AttemptArrow();
         }
@@ -112,6 +112,6 @@ public class RogueAbilities : MonoBehaviour
         currentCooldownTime = 0f; // Reset cooldown time
         cooldownText.text = "OK";
         canShootArrow = true;
-
+        AbilityManager.SetAbilityActive(false);
     }
 }
