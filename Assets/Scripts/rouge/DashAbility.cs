@@ -8,16 +8,18 @@ public class DashAbility : MonoBehaviour
     public float dashSpeedMultiplier = 2f;
     public float dashCooldown = 5f;
     public GameObject dashEffectPrefab;
-    private float currentCooldownTime = 0f;
+    public TMP_Text cooldownText;
+    public float maxDashDistance = 10f;
+
     private bool canDash = true;
-    public BasePlayer basePlayer;
     private bool isSelectingPosition = false;
     private bool isDashing = false;
-    public TMP_Text cooldownText;
-    private NavMeshAgent agent;
     private bool isCooldown = false;
+
+    private NavMeshAgent agent;
     private Animator animator;
     private Vector3 dashTargetPosition;
+    private float currentCooldownTime = 0f;
     private GameObject dashEffectInstance;
 
     void Start()
@@ -29,8 +31,11 @@ public class DashAbility : MonoBehaviour
 
     void Update()
     {
+        // Block all input during dash
+        if (isDashing) return;
+
         // Only activate ability if no other ability is active
-        if (Input.GetKeyDown(KeyCode.Q) && canDash && !AbilityManager.IsAbilityActive()  && basePlayer.IsWildUnlocked)
+        if (Input.GetKeyDown(KeyCode.Q) && canDash && !AbilityManager.IsAbilityActive())
         {
             StartSelectingPosition();
         }
@@ -39,23 +44,24 @@ public class DashAbility : MonoBehaviour
         {
             TryDash();
         }
+
         if (isCooldown)
         {
-            currentCooldownTime += Time.deltaTime; // Increase cooldown time
+            currentCooldownTime += Time.deltaTime;
 
-            float timeLeft = dashCooldown - currentCooldownTime; // Calculate remaining time
+            float timeLeft = dashCooldown - currentCooldownTime;
 
-            // Update the TMP text to show the remaining cooldown time
-            cooldownText.text = Mathf.Ceil(timeLeft) + "s"; // Round and show seconds
+            // Update cooldown text
+            cooldownText.text = Mathf.Ceil(timeLeft) + "s";
 
             if (currentCooldownTime >= dashCooldown)
             {
-                //canUseAbility = true; // Reset ability to be ready
-                currentCooldownTime = 0f; // Reset cooldown time
-                cooldownText.text = "OK"; // Show "OK" when cooldown is complete
-                Debug.Log("Shower of Arrows ability is ready.");
+                currentCooldownTime = 0f;
+                cooldownText.text = "OK";
+                Debug.Log("Dash ability is ready.");
             }
         }
+
         animator.SetBool("isDashing", isDashing);
     }
 
@@ -67,6 +73,9 @@ public class DashAbility : MonoBehaviour
 
     void TryDash()
     {
+        // Prevent setting a new target while dashing
+        if (isDashing) return;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -76,8 +85,18 @@ public class DashAbility : MonoBehaviour
 
             if (IsWalkable(targetPosition))
             {
+                // Calculate direction and clamp distance
+                Vector3 direction = targetPosition - transform.position;
+                float distance = direction.magnitude;
+
+                if (distance > maxDashDistance)
+                {
+                    direction = direction.normalized;
+                    targetPosition = transform.position + direction * maxDashDistance;
+                }
+
                 dashTargetPosition = targetPosition;
-                StartCoroutine(Dash(dashTargetPosition));  // Pass dashTargetPosition to Dash coroutine
+                StartCoroutine(Dash());
             }
             else
             {
@@ -88,90 +107,72 @@ public class DashAbility : MonoBehaviour
         isSelectingPosition = false;
     }
 
-
     bool IsWalkable(Vector3 targetPosition)
     {
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(targetPosition, out hit, 1f, NavMesh.AllAreas))
-        {
-            return true;
-        }
-        return false;
+        return NavMesh.SamplePosition(targetPosition, out hit, 1f, NavMesh.AllAreas);
     }
 
-    IEnumerator Dash(Vector3 dashTargetPosition)
+IEnumerator Dash()
 {
-    animator.SetBool("isDashing", true);
-    float dashSpeed = 15f;           // Dash speed
-    float maxDashDistance = 10f;     // Maximum dash distance
-    float dashDistance = Vector3.Distance(transform.position, dashTargetPosition);  // Distance to dash
-    
-    // Limit the dash distance to the maximum allowed distance
-    dashDistance = Mathf.Min(dashDistance, maxDashDistance);
+    AbilityManager.SetAbilityActive(true);
+    isDashing = true; // Block input
+    canDash = false;
 
-    float traveledDistance = 0f;
-    Vector3 startPosition = transform.position;
+    float originalSpeed = agent.speed;
+    agent.speed *= dashSpeedMultiplier;
 
-    // Cache the initial forward direction for the entire dash duration
-    Vector3 dashDirection = (dashTargetPosition - transform.position).normalized;
-
-    // Calculate the clamped target position based on the maximum dash distance
-    Vector3 clampedTargetPosition = transform.position + dashDirection * dashDistance;
-
-    // Disable NavMeshAgent updates during dash
+    // Disable NavMeshAgent control
     agent.isStopped = true;
-    agent.updateRotation = false;  // Lock rotation during the dash
 
-    // Start the dash effect
+    // Dash effect
     dashEffectInstance = Instantiate(dashEffectPrefab, transform.position, Quaternion.identity);
     dashEffectInstance.transform.parent = transform;
 
-    // Start dashing
-    while (traveledDistance < dashDistance)
+    // Manually move and rotate the agent toward the target position
+    while (Vector3.Distance(transform.position, dashTargetPosition) > agent.stoppingDistance)
     {
-        // Move the player forward along the cached dash direction
-        transform.position = Vector3.MoveTowards(transform.position, clampedTargetPosition, dashSpeed * Time.deltaTime);
+        Vector3 dashDirection = (dashTargetPosition - transform.position).normalized;
 
-        // Update the traveled distance
-        traveledDistance = Vector3.Distance(transform.position, startPosition);
+        // Rotate the agent to face the dash direction
+        Quaternion targetRotation = Quaternion.LookRotation(dashDirection);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
 
-        // Update the dash effect position to follow the player
-        if (dashEffectInstance != null)
-        {
-            dashEffectInstance.transform.position = transform.position;
-        }
-
+        // Move the agent toward the target
+        agent.Move(dashDirection * originalSpeed * dashSpeedMultiplier * Time.deltaTime);
         yield return null;
     }
 
-    // Stop the dash and reset NavMeshAgent
+    // Ensure the agent is exactly at the target position
+    transform.position = dashTargetPosition;
+
+    // Restore NavMeshAgent control
+    agent.isStopped = false;
+    agent.speed = originalSpeed;
+
+    // Set the destination to the final dash position to avoid "snapping back"
+    agent.SetDestination(dashTargetPosition);
+
+    isDashing = false;
+
     if (dashEffectInstance != null)
     {
         Destroy(dashEffectInstance);
     }
 
-    agent.isStopped = false;        // Re-enable NavMeshAgent movement
-    agent.updateRotation = true;   // Allow normal rotation
-    agent.ResetPath();             // Clear the path
-animator.SetBool("isDashing", false);
-    // Dash cooldown or other follow-up logic
     StartCoroutine(DashCooldown());
 }
-public void SetTargetPosition(Vector3 targetPosition)
-{
-    if (!isDashing) // Block new inputs while dashing
-    {
-        dashTargetPosition = targetPosition;
-    }
-}
+
 
 
     IEnumerator DashCooldown()
     {
-        AbilityManager.SetAbilityActive(false); // Mark ability as inactive
-        isCooldown=true;
+        AbilityManager.SetAbilityActive(false);
+        isCooldown = true;
+
         yield return new WaitForSeconds(dashCooldown);
-        isCooldown=false;
+
+        isCooldown = false;
         canDash = true;
         Debug.Log("Dash cooldown ended.");
     }
