@@ -49,6 +49,9 @@ public class BasePlayer : MonoBehaviour
     public Text levelText;   // Legacy Text for level display
 
     private Image healthBarFill;
+    private bool isInvincible = false; // Tracks whether the player is invincible
+    private bool isSlowMotion = false;
+    private bool ToggleCooldown = false;
 
     void Start()
     {
@@ -97,6 +100,11 @@ public class BasePlayer : MonoBehaviour
     //Test XPBar method
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.I)) // Toggle invincibility
+        {
+            isInvincible = !isInvincible; // Toggle the invincibility state
+            Debug.Log($"Invincibility toggled. Now invincible: {isInvincible}");
+        }
         if (Input.GetKeyDown(KeyCode.X))
         {
             GainXP(100); 
@@ -104,8 +112,25 @@ public class BasePlayer : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
-            TakeDamage(20); 
+            TakeDamage(20);
             UpdateHealthUI();
+        }
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            currentHealth += 20;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Ensure health doesn't exceed the maximum
+            UpdateHealthUI();
+        }
+        if (Input.GetKeyDown(KeyCode.M)) // Toggle slow motion
+        {
+            isSlowMotion = !isSlowMotion;
+            Time.timeScale = isSlowMotion ? 0.5f : 1f; // 0.5x speed for slow motion, 1x for normal speed
+            Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        }
+        if (Input.GetKeyDown(KeyCode.C)) // Toggle slow motion
+        {
+            ToggleCooldown = !ToggleCooldown;
+            
         }
         if (Input.GetKeyDown(KeyCode.U))
         {
@@ -127,7 +152,12 @@ public class BasePlayer : MonoBehaviour
         {
             Heal(); // Use a potion when F is pressed
         }
-    }
+        if (currentHealth == 0)
+        {
+            animator.SetTrigger("Die");
+        }
+
+        }
 
    
 
@@ -148,6 +178,11 @@ public class BasePlayer : MonoBehaviour
         }
     public void TakeDamage(int damage)
     {
+        if (isInvincible)
+        {
+            Debug.Log("Player is invincible! Damage ignored.");
+            return;
+        }
         Barbarian barbarian = GetComponent<Barbarian>();  // Get the Barbarian component (assuming BasePlayer and Barbarian are attached to the same GameObject)
 
         if (barbarian != null && barbarian.shieldActive)
@@ -156,7 +191,6 @@ public class BasePlayer : MonoBehaviour
             Debug.Log("Damage blocked by shield!");
             return;
         }
-
         // Apply damage if no shield is active
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Ensure health doesn't go below 0
@@ -416,6 +450,7 @@ private void SetupButton(Button button, TMP_Text buttonText, bool isUnlocked)
     public void zerorune()
     {
         runeCount = 0;
+        Debug.Log($" Zerofragment {runeCount}");
     }
 
 public bool IsBasicAbilityUnlocked() => basicUnlocked;

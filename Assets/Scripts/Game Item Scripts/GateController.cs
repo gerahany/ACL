@@ -11,11 +11,11 @@ public class GateController : MonoBehaviour
 
     private void Start()
     {
-        // Find the staged player object
+        // Find the player object
         player = GameObject.FindWithTag("Player");
         if (player == null)
         {
-            Debug.LogError(" Player object not found. Make sure it is named 'Player' in the scene. Gate ");
+            Debug.LogError("Player object not found. Make sure it is named 'Player' in the scene.");
             return;
         }
 
@@ -24,30 +24,22 @@ public class GateController : MonoBehaviour
         Debug.Log($"Gate initial position saved: {initialGatePosition}");
     }
 
-    private void Update()
+    public void CheckProximity()
     {
         if (player == null)
             return;
 
-        float distanceToPlayer = Vector3.Distance(initialGatePosition, player.transform.position);
-        Debug.Log($"gate: {isGateOpen}");
+        float distanceToPlayer = Vector3.Distance(player.transform.position, initialGatePosition);
 
-        if (distanceToPlayer <= 10)
+        if (distanceToPlayer <= proximityDistance && !isGateOpen)
         {
-            Debug.Log($"Player is near the gate.");
             BasePlayer basePlayer = player.GetComponent<BasePlayer>();
             if (basePlayer != null && basePlayer.getrune() >= requiredRuneCount)
             {
-                Debug.Log($"Player has enough runes to open the gate.");
                 OpenGate(basePlayer);
-
-            }
-            else
-            {
-                CloseGate();
             }
         }
-        else
+        else if (distanceToPlayer > proximityDistance && isGateOpen)
         {
             CloseGate();
         }
@@ -55,7 +47,9 @@ public class GateController : MonoBehaviour
 
     private void OpenGate(BasePlayer basePlayer)
     {
-       
+        if (isGateOpen) return;
+
+        isGateOpen = true;
         basePlayer.zerorune(); // Reset the player's rune count
         gameObject.SetActive(false); // Make the gate disappear
         Debug.Log("Gate opened!");
@@ -63,6 +57,8 @@ public class GateController : MonoBehaviour
 
     private void CloseGate()
     {
+        if (!isGateOpen) return;
+
         isGateOpen = false;
         gameObject.SetActive(true); // Make the gate reappear
         Debug.Log("Gate closed!");
