@@ -13,6 +13,7 @@ public class RogueAbilities : MonoBehaviour
     private bool canShootArrow = true;
     private bool isCooldown = false;
     private float currentCooldownTime = 0f;
+     public BasePlayer basePlayer;
     private float arrowCooldown = 1f;
 
     void Start()
@@ -43,6 +44,11 @@ public class RogueAbilities : MonoBehaviour
                 cooldownText.text = "OK"; // Show "OK" when cooldown is complete
                 Debug.Log("Shower of Arrows ability is ready.");
             }
+        }
+         if(basePlayer.isCoolZero()){
+           arrowCooldown=0f;
+        }else{
+            arrowCooldown=1f;
         }
     }
 

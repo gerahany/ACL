@@ -28,8 +28,9 @@ public class ArrowsAbility : MonoBehaviour
     void Update()
     {
         // Only activate ability if no other ability is active
-        if (Input.GetKeyDown(KeyCode.E) && canUseAbility && !AbilityManager.IsAbilityActive() && basePlayer.IsUltimateUnlocked)
+        if (Input.GetKeyDown(KeyCode.E) && canUseAbility && !AbilityManager.IsAbilityActive() && basePlayer.IsUltimateUnlocked && !AbilityManager.IsButton())
         {
+            AbilityManager.SetButton(true);
             StartSelectingPosition();
         }
         if (isCooldown)
@@ -48,6 +49,11 @@ public class ArrowsAbility : MonoBehaviour
                 cooldownText.text = "OK"; // Show "OK" when cooldown is complete
                 Debug.Log("Shower of Arrows ability is ready.");
             }
+        }
+        if(basePlayer.isCoolZero()){
+           abilityCooldown=0f;
+        }else{
+            abilityCooldown=10f;
         }
     }
 
@@ -107,6 +113,7 @@ public class ArrowsAbility : MonoBehaviour
 
         isCooldown=true;
         yield return new WaitForSeconds(abilityCooldown);
+        AbilityManager.SetButton(false);
         isCooldown=false;
         canUseAbility = true;
 

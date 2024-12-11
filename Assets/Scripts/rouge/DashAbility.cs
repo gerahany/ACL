@@ -10,11 +10,11 @@ public class DashAbility : MonoBehaviour
     public GameObject dashEffectPrefab;
     public TMP_Text cooldownText;
     public float maxDashDistance = 10f;
-
     private bool canDash = true;
     private bool isSelectingPosition = false;
     private bool isDashing = false;
     private bool isCooldown = false;
+    public BasePlayer basePlayer;
 
     private NavMeshAgent agent;
     private Animator animator;
@@ -35,8 +35,9 @@ public class DashAbility : MonoBehaviour
         if (isDashing) return;
 
         // Only activate ability if no other ability is active
-        if (Input.GetKeyDown(KeyCode.Q) && canDash && !AbilityManager.IsAbilityActive())
+        if (Input.GetKeyDown(KeyCode.Q) && canDash && !AbilityManager.IsAbilityActive() && !AbilityManager.IsButton() && basePlayer.IsWildUnlocked)
         {
+            AbilityManager.SetButton(true);
             StartSelectingPosition();
         }
 
@@ -60,6 +61,11 @@ public class DashAbility : MonoBehaviour
                 cooldownText.text = "OK";
                 Debug.Log("Dash ability is ready.");
             }
+        }
+         if(basePlayer.isCoolZero()){
+           dashCooldown=0f;
+        }else{
+            dashCooldown=5f;
         }
 
         animator.SetBool("isDashing", isDashing);
@@ -171,7 +177,7 @@ IEnumerator Dash()
         isCooldown = true;
 
         yield return new WaitForSeconds(dashCooldown);
-
+        AbilityManager.SetButton(false);
         isCooldown = false;
         canDash = true;
         Debug.Log("Dash cooldown ended.");

@@ -9,6 +9,7 @@ public class BasePlayer : MonoBehaviour
     public string playerName;
     public int currentLevel = 1;
     public int currentXP = 0;
+    public static bool coolZero=false;
     public Button basicButton;     // Button for Basic ability
     public Button defensiveButton; // Button for Defensive ability
     public Button wildButton;      // Button for Wild ability
@@ -105,6 +106,11 @@ public class BasePlayer : MonoBehaviour
             isInvincible = !isInvincible; // Toggle the invincibility state
             Debug.Log($"Invincibility toggled. Now invincible: {isInvincible}");
         }
+        if (Input.GetKeyDown(KeyCode.C)) // Toggle invincibility
+        {
+            coolZero = !coolZero; // Toggle the invincibility state
+            Debug.Log($"Cooldown toggled");
+        }
         if (Input.GetKeyDown(KeyCode.X))
         {
             GainXP(100); 
@@ -126,11 +132,6 @@ public class BasePlayer : MonoBehaviour
             isSlowMotion = !isSlowMotion;
             Time.timeScale = isSlowMotion ? 0.5f : 1f; // 0.5x speed for slow motion, 1x for normal speed
             Time.fixedDeltaTime = 0.02f * Time.timeScale;
-        }
-        if (Input.GetKeyDown(KeyCode.C)) // Toggle slow motion
-        {
-            ToggleCooldown = !ToggleCooldown;
-            
         }
         if (Input.GetKeyDown(KeyCode.U))
         {
@@ -451,6 +452,15 @@ private void SetupButton(Button button, TMP_Text buttonText, bool isUnlocked)
     {
         runeCount = 0;
         Debug.Log($" Zerofragment {runeCount}");
+    }
+    public  bool isCoolZero()
+    {
+        return coolZero;
+    }
+
+    public  void SetCool(bool isActive)
+    {
+        coolZero = isActive;
     }
 
 public bool IsBasicAbilityUnlocked() => basicUnlocked;

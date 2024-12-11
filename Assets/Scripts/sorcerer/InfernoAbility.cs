@@ -21,8 +21,9 @@ public class InfernoAbility : MonoBehaviour
     void Update()
     {
         // Activate Inferno when pressing "E" and not in cooldown
-        if (Input.GetKeyDown(KeyCode.E) && canUseInferno && !isSelectingPosition && basePlayer.IsUltimateUnlocked)
+        if (Input.GetKeyDown(KeyCode.E) && canUseInferno && !isSelectingPosition && basePlayer.IsUltimateUnlocked && !SorcererManager.IsButton())
         {
+            SorcererManager.SetButton(true);
             StartSelectingPosition();
         }
 
@@ -30,6 +31,12 @@ public class InfernoAbility : MonoBehaviour
         if (isSelectingPosition && Input.GetMouseButtonDown(1)) // Right-click
         {
             CastInferno();
+        }
+        if(basePlayer.isCoolZero()){
+           cooldown=0f;
+            
+        }else{
+            cooldown=15f;
         }
     }
 
@@ -88,6 +95,7 @@ public class InfernoAbility : MonoBehaviour
 
         // Cooldown is complete
         infernoCooldownText.text = "OK";
+        SorcererManager.SetButton(false);
         canUseInferno = true;
         Debug.Log("Inferno is ready.");
         canUseInferno = true;

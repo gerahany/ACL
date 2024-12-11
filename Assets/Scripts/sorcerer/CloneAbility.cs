@@ -24,8 +24,9 @@ public class CloneAbility : MonoBehaviour
     void Update()
     {
         // Activate clone ability when pressing "Q"
-        if (Input.GetKeyDown(KeyCode.Q) && canUseClone && !isCooldownActive && !isSelectingPosition && basePlayer.IsWildUnlocked)
+        if (Input.GetKeyDown(KeyCode.Q) && canUseClone && !isCooldownActive && !isSelectingPosition && basePlayer.IsWildUnlocked && !SorcererManager.IsButton())
         {
+            SorcererManager.SetButton(true);
             isSelectingPosition = true;
         }
 
@@ -34,6 +35,12 @@ public class CloneAbility : MonoBehaviour
         {
             Debug.Log(canUseClone);
             TryCreateClone();
+        }
+         if(basePlayer.isCoolZero()){
+           cooldown=0f;
+            
+        }else{
+            cooldown=10f;
         }
     }
 
@@ -168,6 +175,7 @@ public class CloneAbility : MonoBehaviour
         }
 
         CloneCooldownText.text = "OK"; // Indicate ability is ready
+        SorcererManager.SetButton(false);
         canUseClone = true;
         isCooldownActive = false;
     }

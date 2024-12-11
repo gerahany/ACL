@@ -13,6 +13,7 @@ public class Barbarian : BasePlayer
 {
     public Animator animator;
     public ParticleSystem chargeEffect;
+    //private KeyCode? activeAbilityKey = null; 
     public NavMeshAgent agent;
     //public ParticleSystem shieldEffect;
     public GameObject shieldBall; 
@@ -23,6 +24,7 @@ public class Barbarian : BasePlayer
     private float chargeCooldown = 10f;
     public BasePlayer basePlayer;
     public bool shieldActive = false;
+    public bool keyActive = false;
     private float shieldDuration = 3f;
     public ParticleSystem bloodEffect;
     private bool isAbilityInProgress = false; // Flag to track if an ability is in progress
@@ -47,6 +49,17 @@ public class Barbarian : BasePlayer
         HandleAbilityInput();
         UpdateAnimations();
         UpdateCooldownTexts();
+        if(basePlayer.isCoolZero()){
+            bashCooldown = 0f;
+            shieldCooldown = 0f;
+            ironMaelstromCooldown = 0f;
+            chargeCooldown = 0f;
+        }else{
+            bashCooldown = 1f;
+            shieldCooldown = 10f;
+            ironMaelstromCooldown = 5f;
+            chargeCooldown = 10f;
+        }
     }
    void UpdateCooldownTexts()
 {
@@ -125,15 +138,17 @@ public class Barbarian : BasePlayer
     if (!isAbilityInProgress)
     {
         // Check for ability activation first
-        if (Input.GetKeyDown(KeyCode.Q) && !isAbilityInProgress && basePlayer.IsWildUnlocked )  // Wild Card
+        if (Input.GetKeyDown(KeyCode.Q) && !isAbilityInProgress && basePlayer.IsWildUnlocked && !keyActive )  // Wild Card
         {
+            keyActive=true;
             isIronMaelstromActive = true;  // Mark the ability as active
             isAbilityInProgress = true;  // Lock other abilities
             Debug.Log("Wild Card activated. Right-click to specify position.");
         }
 
-        if (Input.GetKeyDown(KeyCode.E) && !isAbilityInProgress && basePlayer.IsUltimateUnlocked )  // Ultimate
+        if (Input.GetKeyDown(KeyCode.E) && !isAbilityInProgress && basePlayer.IsUltimateUnlocked  && !keyActive)  // Ultimate
         {
+            keyActive=true;
             isChargeActive = true;  // Mark the ability as active
             isAbilityInProgress = true;  // Lock other abilities
             Debug.Log("Ultimate activated. Right-click to specify position.");
@@ -161,6 +176,7 @@ public class Barbarian : BasePlayer
 
         // Unlock ability usage after handling right-click
         isAbilityInProgress = false;
+        keyActive=false;
     } else {
         if (Input.GetMouseButtonDown(1)) UseBash();
     }
@@ -371,7 +387,7 @@ IEnumerator ShieldCoroutine()
         
         // Wait for the full animation or ability to complete
         yield return new WaitForSeconds(ironMaelstromCooldown);
-
+        keyActive=false;
         isAbilityInProgress = false;  // Unlock ability usage after the cooldown period
     }
 
@@ -483,17 +499,15 @@ IEnumerator ChargeForward(Vector3 targetPosition)
 
     Debug.Log("Charge complete, or timeout reached, staying at final position.");
     StartAbilityCooldown("Charge", chargeCooldown);
+    keyActive=false;
     isAbilityInProgress = false;  // Unlock ability usage after charge is complete
 }
-
-
-
 
     IEnumerator WaitForAbilityCompletion()
     {
         // Wait until the current animation completes (adjust this time based on your animation)
         yield return new WaitForSeconds(10f);
-
+        keyActive=false;
         isAbilityInProgress = false;  // Unlock ability usage after the ability completes
     }
 

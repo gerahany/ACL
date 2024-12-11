@@ -20,8 +20,9 @@ public class TeleportAbility : MonoBehaviour
     void Update()
     {
         // Activate teleport ability when pressing "W"
-        if (Input.GetKeyDown(KeyCode.W) && canTeleport && !isSelectingPosition && basePlayer.IsDefensiveUnlocked)
+        if (Input.GetKeyDown(KeyCode.W) && canTeleport && !isSelectingPosition && basePlayer.IsDefensiveUnlocked && !SorcererManager.IsButton())
         {
+            SorcererManager.SetButton(true);
             StartSelectingPosition();
         }
 
@@ -29,6 +30,12 @@ public class TeleportAbility : MonoBehaviour
         if (isSelectingPosition && Input.GetMouseButtonDown(1)) // Right-click (button 1)
         {
             TryTeleport();
+        }
+        if(basePlayer.isCoolZero()){
+           teleportCooldown=0f;
+            
+        }else{
+            teleportCooldown=10f;
         }
     }
 
@@ -106,6 +113,7 @@ public class TeleportAbility : MonoBehaviour
     {
         canTeleport = false;
         yield return new WaitForSeconds(teleportCooldown);
+        SorcererManager.SetButton(false);
         canTeleport = true;
     }
     void ShowTeleportEffect()

@@ -44,6 +44,14 @@ public class SorcererAbilities : MonoBehaviour
                 AttemptFireball();
             }
         }
+        if(basePlayer.isCoolZero()){
+           teleportCooldown=0f;
+           fireballCooldown=0f;
+            
+        }else{
+            teleportCooldown=10f;
+            fireballCooldown=1f;
+        }
     }
 
     void AttemptFireball()

@@ -33,18 +33,25 @@ public class SmokeBombAbility : MonoBehaviour
         {
             currentCooldownTime += Time.deltaTime; // Increase cooldown time
 
-            float timeLeft = 10 - currentCooldownTime; // Calculate remaining time
+            float timeLeft = smokeBombCooldown - currentCooldownTime; // Calculate remaining time
 
             // Update the TMP text to show the remaining cooldown time
             cooldownText.text = Mathf.Ceil(timeLeft) + "s"; // Round and show seconds
 
-            if (currentCooldownTime >= 10)
+            if (currentCooldownTime >= smokeBombCooldown)
             {
                 //canUseAbility = true; // Reset ability to be ready
                 currentCooldownTime = 0f; // Reset cooldown time
                 cooldownText.text = "OK"; // Show "OK" when cooldown is complete
                 Debug.Log("Shower of Arrows ability is ready.");
             }
+        }
+          if(basePlayer.isCoolZero()){
+           smokeBombCooldown=0f;
+            cooldownText.text = "OK";
+            isCooldown=false;
+        }else{
+            smokeBombCooldown=10f;
         }
     }
 
