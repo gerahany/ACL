@@ -1,13 +1,25 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MenuAudioManager : MonoBehaviour
 {
     public GameObject[] menuPanels; // Array of menu panels
     private AudioSource audioSource;
+    public Slider volumeSlider; 
 
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
+
+        // Set the slider value to the current audio volume
+        if (volumeSlider != null)
+        {
+            volumeSlider.value = audioSource.volume;
+
+            // Add a listener to handle slider value changes
+            volumeSlider.onValueChanged.AddListener(SetVolume);
+        }
+
         CheckMenuState(); // Check the initial state
     }
 
@@ -45,5 +57,9 @@ public class MenuAudioManager : MonoBehaviour
                 audioSource.Stop();
             }
         }
+    }
+     public void SetVolume(float volume)
+    {
+        audioSource.volume = volume;
     }
 }

@@ -5,6 +5,8 @@ public class CreditsPanelController : MonoBehaviour
     public GameObject teamCreditsPanel;
     public GameObject assetCreditsPanel;
     public GameObject optionsPanel;
+    public GameObject currentPanel;
+    public GameObject previousPanel;
 
     // Show the Team Credits panel
     public void ShowTeamCredits()
@@ -33,5 +35,11 @@ public class CreditsPanelController : MonoBehaviour
 
         // Re-enable the Options panel
         optionsPanel.SetActive(true);
+    }
+
+    public void Back()
+    {
+        previousPanel.SetActive(true);
+        currentPanel.SetActive(false);
     }
 }

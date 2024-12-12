@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class CharacterSelectionHandler : MonoBehaviour
 {
@@ -8,48 +9,48 @@ public class CharacterSelectionHandler : MonoBehaviour
     public GameObject rougeDetailPanel;
     public GameObject characterClassPanel;
     public GameObject confirmButton;
-
     public Button sorcererButton;
     public Button barbarianButton;
     public Button rougeButton;
-
+    public TMP_Text sorcererText;
+    public TMP_Text barbarianText;
+    public TMP_Text rougeText;
+    public TMP_Text abilitiesText;
     public Color defaultColor = Color.white;
-    public Color highlightColor = Color.green;
+    public Color selectionColor = Color.red; // Color when selected
 
     private string selectedCharacter;
-    private Button currentSelectedButton;
+    private TMP_Text currentSelectedText;
 
     void Start()
     {
         selectedCharacter = null;
         confirmButton.SetActive(false);
-        ResetButtonColors();
+        ResetTextColors();
         Debug.Log("Initialization complete");
     }
 
-    private void ResetButtonColors()
+    private void ResetTextColors()
     {
-        sorcererButton.image.color = defaultColor;
-        barbarianButton.image.color = defaultColor;
-        rougeButton.image.color = defaultColor;
-        Debug.Log("Button colors reset");
+        sorcererText.color = defaultColor;
+        barbarianText.color = defaultColor;
+        rougeText.color = defaultColor;
+
+        Debug.Log("Text colors reset");
     }
 
-    private void HighlightSelectedButton()
+    private void SetCharacterTextColor(TMP_Text characterText)
     {
-        if (currentSelectedButton != null)
-        {
-            currentSelectedButton.image.color = highlightColor;
-        }
+        // Reset text colors for all characters
+        ResetTextColors();
+
+        // Highlight the selected character's text in red
+        characterText.color = selectionColor;
     }
 
-    private void SelectCharacter(Button selectedButton, GameObject detailPanel, string characterName)
+    private void SelectCharacter(GameObject detailPanel, string characterName, TMP_Text characterText)
     {
-        ResetButtonColors();
-        selectedButton.image.color = highlightColor;
-        currentSelectedButton = selectedButton;
-
-        // Hide all panels
+        // Hide all detail panels
         sorcererDetailPanel.SetActive(false);
         barbarianDetailPanel.SetActive(false);
         rougeDetailPanel.SetActive(false);
@@ -60,23 +61,35 @@ public class CharacterSelectionHandler : MonoBehaviour
 
         selectedCharacter = characterName;
         confirmButton.SetActive(true);
+        if(characterName=="Sorcerer"){
+            abilitiesText.text="";
+        }
+        if(characterName=="Barbarian"){
+            abilitiesText.text="";
+        }
+        if(characterName=="Rouge"){
+            abilitiesText.text="";
+        }
+
+        // Set the selected character text color
+        SetCharacterTextColor(characterText);
 
         Debug.Log($"Character selected: {characterName}, Confirm button visible");
     }
 
     public void SelectSorcerer()
     {
-        SelectCharacter(sorcererButton, sorcererDetailPanel, "Sorcerer");
+        SelectCharacter(sorcererDetailPanel, "Sorcerer", sorcererText);
     }
 
     public void SelectBarbarian()
     {
-        SelectCharacter(barbarianButton, barbarianDetailPanel, "Barbarian");
+        SelectCharacter(barbarianDetailPanel, "Barbarian", barbarianText);
     }
 
     public void SelectRouge()
     {
-        SelectCharacter(rougeButton, rougeDetailPanel, "Rouge");
+        SelectCharacter(rougeDetailPanel, "Rouge", rougeText);
     }
 
     public void ConfirmSelection()
@@ -102,12 +115,9 @@ public class CharacterSelectionHandler : MonoBehaviour
         // Show the character selection panel
         characterClassPanel.SetActive(true);
 
-        // Keep confirm button visible
-        confirmButton.SetActive(true);
+        // Hide confirm button when going back to the selection screen
+        confirmButton.SetActive(false);
 
-        // Highlight the previously selected button
-        HighlightSelectedButton();
-
-        Debug.Log("Back to selection screen, confirm button remains visible");
+        Debug.Log("Back to selection screen, confirm button hidden");
     }
 }

@@ -6,8 +6,9 @@ public class LilithHealthBar : MonoBehaviour
 {
     public int maxHealth = 50; // Maximum health represented by the number of dashes
     private int currentHealth; // Current health
-
+    public Animator animator; // Animator for the health bar
     private List<GameObject> dashes = new List<GameObject>();
+    private bool isDead = false;
 
     void Start()
     {
@@ -20,13 +21,23 @@ public class LilithHealthBar : MonoBehaviour
         }
     }
 
+
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+        if (currentHealth > 0 && !isDead) // Avoid taking damage if already dead
+        {
+            currentHealth -= damage;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            UpdateHealthBar();
 
-        UpdateHealthBar();
+            if (animator != null)
+            {
+                animator.SetTrigger("Damage"); // Trigger the damage animation
+            }
+        }
     }
+
+
 
     private void UpdateHealthBar()
     {
