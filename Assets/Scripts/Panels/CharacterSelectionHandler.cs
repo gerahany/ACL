@@ -101,6 +101,17 @@ public class CharacterSelectionHandler : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(selectedCharacter))
         {
+            GameObject panels = GameObject.Find("Panels");
+            if (panels != null)
+            {
+                panels.SetActive(false);  // Deactivate Panels UI
+                Debug.Log("Panels deactivated.");
+            }
+            else
+            {
+                Debug.LogError("Panels GameObject not found in the scene!");
+            }
+
             Debug.Log($"Character confirmed: {selectedCharacter}");
             // Add logic to proceed with the selected character
             currentPanel.SetActive(false);
@@ -138,6 +149,7 @@ public class CharacterSelectionHandler : MonoBehaviour
 {
     // Ensure the scene is active or properly referenced
     Scene scene = SceneManager.GetSceneByName(sceneName);
+    SceneManager.UnloadSceneAsync("Panels");
 
     if (!scene.isLoaded)
     {
