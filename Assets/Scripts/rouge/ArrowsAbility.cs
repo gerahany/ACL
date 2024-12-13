@@ -5,6 +5,7 @@ using TMPro;
 
 public class ArrowsAbility : MonoBehaviour
 {
+    public SoundEffectHandler soundEffectHandler;
     public GameObject arrowPrefab;
     public float arrowRainDuration = 3f;
     public float arrowSpawnInterval = 0.2f;
@@ -95,6 +96,7 @@ public class ArrowsAbility : MonoBehaviour
 
     IEnumerator ActivateShowerOfArrows(Vector3 targetPosition, GameObject arrowRing)
     {
+        soundEffectHandler.PlayArrowFireSound();
         AbilityManager.SetAbilityActive(true); // Mark ability as active
         canUseAbility = false;
         float elapsedTime = 0f;

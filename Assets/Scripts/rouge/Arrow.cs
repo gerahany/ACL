@@ -5,6 +5,7 @@ public class Arrow : MonoBehaviour
     public float speed = 8f; // Speed of the arrow
     public float damage = 15f; // Damage dealt to the enemy upon impact
     public float lifetime = 10f; // Lifetime of the arrow
+    
 
     private Vector3 direction;
     private Rigidbody rb;

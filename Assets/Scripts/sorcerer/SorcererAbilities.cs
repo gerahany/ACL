@@ -17,11 +17,16 @@ public class SorcererAbilities : MonoBehaviour
     private bool teleportRequested = false; // Flag to track if W + right-click is requested
     public TMP_Text fireballCooldownText;
     public TMP_Text teleportCooldownText;
+    public SoundEffectHandler soundEffectHandler;
 
     void Start()
     {
         fireballCooldownText.text = "OK";
         teleportCooldownText.text = "OK";
+        if (basePlayer == null)
+    {
+        basePlayer = FindObjectOfType<BasePlayer>();
+    }
     }
     void Update()
     {
@@ -44,19 +49,29 @@ public class SorcererAbilities : MonoBehaviour
                 AttemptFireball();
             }
         }
-        if(basePlayer.isCoolZero()){
-           teleportCooldown=0f;
-           fireballCooldown=0f;
-            
-        }else{
-            teleportCooldown=10f;
-            fireballCooldown=1f;
+        if (basePlayer != null)
+    {
+        if (basePlayer.isCoolZero())
+        {
+            teleportCooldown = 0f;
+            fireballCooldown = 0f;
         }
+        else
+        {
+            teleportCooldown = 10f;
+            fireballCooldown = 1f;
+        }
+    }
+    else
+    {
+        Debug.LogWarning("BasePlayer is not assigned!");
+    }
     }
 
     void AttemptFireball()
     {
         // Perform a raycast from the camera to the mouse pointer position
+        soundEffectHandler.PlayFireballSound();
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, raycastRange))
         {

@@ -8,18 +8,14 @@ public class PanelManager : MonoBehaviour
     public GameObject choosePlayerPanel;
     public GameObject bossLevelPanel;
 
-    // Flags to determine the chosen level
     private bool isMainLevelSelected = false;
     private bool isBossLevelSelected = false;
-
-    // Stack to track panel shistory
-    //private Stack<GameObject> panelHistory = new Stack<GameObject>();
 
 public void SelectMainLevel()
 {
     isMainLevelSelected = true;
     isBossLevelSelected = false;
-
+    Debug.Log("hey main");
     // Navigate to Choose Player Panel
     mainMenuPanel.SetActive(false);
     choosePlayerPanel.SetActive(true);

@@ -12,6 +12,7 @@ public class demonhealthbar : MonoBehaviour
     private bool isDead = false;
 
     public Animator animator;
+    public SoundEffectHandler soundEffectHandler;
 
     void Start()
     {
@@ -89,6 +90,7 @@ public void TakeDamage(int damage)
             if (animator != null && randDemon!=null)
             {
                 randDemon.RemoveAggressiveDemon(gameObject);
+                soundEffectHandler.PlayEnemyDeathSound();
                 animator.SetTrigger("DieDemon"); // Trigger the death animation
             }
 

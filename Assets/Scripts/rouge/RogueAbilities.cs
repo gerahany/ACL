@@ -14,7 +14,8 @@ public class RogueAbilities : MonoBehaviour
     private bool isCooldown = false;
     private float currentCooldownTime = 0f;
      public BasePlayer basePlayer;
-    private float arrowCooldown = 1f;
+     public SoundEffectHandler soundEffectHandler;
+     private float arrowCooldown = 1f;
 
     void Start()
     {
@@ -54,6 +55,7 @@ public class RogueAbilities : MonoBehaviour
 
     void AttemptArrow()
     {
+        soundEffectHandler.PlayArrowFireSound();
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, raycastRange))
         {

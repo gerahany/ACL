@@ -12,6 +12,7 @@ using TMPro;
 public class Barbarian : BasePlayer
 {
     public Animator animator;
+    public SoundEffectHandler soundEffectHandler;
     public ParticleSystem chargeEffect;
     //private KeyCode? activeAbilityKey = null; 
     public NavMeshAgent agent;
@@ -339,6 +340,7 @@ void UseShield()
         //shieldEffect.Play(); // Activate the shield visually
         animator.SetTrigger("Shield");  // Trigger the shield animation
         Debug.Log($"{playerName} activated Shield!");
+        soundEffectHandler.PlayShieldSound(); // Play shield sound
         StartCoroutine(ShieldCoroutine());
     }
 }
@@ -402,6 +404,7 @@ IEnumerator ShieldCoroutine()
             chargeEffect.Play();
             // Start the charge animation and movement
             animator.SetBool("isCharging", true);
+            soundEffectHandler.PlayDashSound(); 
             StartCoroutine(ChargeForward(targetPosition));
 
             

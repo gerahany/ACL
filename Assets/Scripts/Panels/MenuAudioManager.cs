@@ -5,6 +5,7 @@ public class MenuAudioManager : MonoBehaviour
 {
     public GameObject[] menuPanels; // Array of menu panels
     private AudioSource audioSource;
+    public AudioSource audioSource2; // Reference to the second AudioSource (drag in Inspector)
     public Slider volumeSlider; 
 
     void Start()
@@ -49,6 +50,12 @@ public class MenuAudioManager : MonoBehaviour
             {
                 audioSource.Play();
             }
+            if (audioSource2.isPlaying)
+            {
+                audioSource2.Stop();
+            }
+
+           
         }
         else
         {
@@ -56,10 +63,18 @@ public class MenuAudioManager : MonoBehaviour
             {
                 audioSource.Stop();
             }
+
+             if (!audioSource2.isPlaying)
+            {
+                audioSource2.Play();
+            }
         }
     }
-     public void SetVolume(float volume)
+
+    // Modify SetVolume to control both audio sources
+    public void SetVolume(float volume)
     {
         audioSource.volume = volume;
+        audioSource2.volume = volume; // Ensure both sources have the same volume
     }
 }

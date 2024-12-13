@@ -12,6 +12,10 @@ public class CharacterSelectionHandler : MonoBehaviour
     public GameObject rougeDetailPanel;
     public GameObject characterClassPanel;
     public GameObject confirmButton;
+    public GameObject sorcererPlayer;
+    public GameObject barbarianPlayer;
+    public GameObject roguePlayer;
+    public GameObject gameAudio;
     public Button sorcererButton;
     public Button barbarianButton;
     public Button rougeButton;
@@ -38,7 +42,6 @@ public class CharacterSelectionHandler : MonoBehaviour
         "• Shower of Arrows: Slows enemies and deals damage.\n";
     public Color defaultColor = Color.white;
     public Color selectionColor = Color.red;
-
     private string selectedCharacter;
     private TMP_Text currentSelectedText;
 
@@ -99,6 +102,7 @@ public class CharacterSelectionHandler : MonoBehaviour
 
     public void ConfirmSelection()
     {
+         Time.timeScale = 1;
         if (!string.IsNullOrEmpty(selectedCharacter))
         {
             PlayerPrefs.SetString("SelectedCharacter", selectedCharacter);
@@ -118,7 +122,7 @@ public class CharacterSelectionHandler : MonoBehaviour
             Debug.Log($"Character confirmed: {selectedCharacter}");
             // Add logic to proceed with the selected character
             currentPanel.SetActive(false);
-
+            
             // Switch to the new scene and activate the respective player
             ActivatePlayerInScene("newScene", selectedCharacter);
         }
@@ -150,44 +154,33 @@ public class CharacterSelectionHandler : MonoBehaviour
     }
     private void ActivatePlayerInScene(string sceneName, string characterName)
 {
+     if (gameAudio != null)
+        {
+            gameAudio.SetActive(true);
+            Debug.Log("gameAudio activated.");
+        }
     // Ensure the scene is active or properly referenced
-    Scene scene = SceneManager.GetSceneByName(sceneName);
-    SceneManager.UnloadSceneAsync("Panels");
+    if (!string.IsNullOrEmpty(selectedCharacter))
+        {
+            // Deactivate all characters
+            sorcererPlayer.SetActive(false);
+            barbarianPlayer.SetActive(false);
+            roguePlayer.SetActive(false);
 
-    if (!scene.isLoaded)
-    {
-        Debug.LogError($"Scene '{sceneName}' is not loaded!");
-        return;
-    }
+            // Activate the selected character
+            switch (selectedCharacter.ToLower())
+            {
+                case "sorcerer":
+                    sorcererPlayer.SetActive(true);
+                    break;
+                case "barbarian":
+                    barbarianPlayer.SetActive(true);
+                    break;
+                case "rouge":
+                    roguePlayer.SetActive(true);
+                    break;
+            }}
 
-    // Set the scene to active (if needed)
-    SceneManager.SetActiveScene(scene);
-
-    // Find the "Characters" parent GameObject in the active scene
-    GameObject characterParent = GameObject.Find("Characters");
-    if (characterParent == null)
-    {
-        Debug.LogError("Parent 'Characters' object not found in the scene!");
-        return;
-    }
-
-    // Deactivate all characters within the "Characters" parent
-    foreach (Transform child in characterParent.transform)
-    {
-        child.gameObject.SetActive(false);
-    }
-
-    // Activate the selected character by its name (case-insensitive)
-    GameObject selectedPlayer = characterParent.transform.Find(characterName.ToLower())?.gameObject;
-    if (selectedPlayer != null)
-    {
-        selectedPlayer.SetActive(true);
-        Debug.Log($"{characterName} activated in scene {sceneName}");
-    }
-    else
-    {
-        Debug.LogError($"{characterName} not found under 'Characters' object!");
-    }
 // Find the "Footers" GameObject in the scene and activate it
     GameObject footers = GameObject.Find("Footers");
     if (footers != null)

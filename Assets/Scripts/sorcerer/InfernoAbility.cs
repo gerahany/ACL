@@ -6,6 +6,7 @@ using TMPro;
 public class InfernoAbility : MonoBehaviour
 {
     public float cooldown = 15f; // Cooldown duration
+    public SoundEffectHandler soundEffectHandler;
     public GameObject flameRingPrefab; // Prefab for the flame ring
     public float ringDuration = 5f; // Duration of the flame ring
     private bool canUseInferno = true; // Can the ability be used?
@@ -48,6 +49,7 @@ public class InfernoAbility : MonoBehaviour
 
     void CastInferno()
     {
+        soundEffectHandler.PlayShieldSound();
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 

@@ -10,6 +10,7 @@ public class minionhealthbar : MonoBehaviour
     private int maxHealth = 20;
     private bool isDead = false;
     private int currentHealth;
+    public SoundEffectHandler soundEffectHandler;
 
     void Start()
     {
@@ -89,6 +90,7 @@ public void TakeDamage(int damage)
             if (animator != null && currentHealth <= 0 && randMinion != null)
             {
                 randMinion.RemoveAggressiveMinion(gameObject);
+                soundEffectHandler.PlayEnemyDeathSound();
                 animator.SetTrigger("DieMinion"); // Trigger the death animation
             }
 

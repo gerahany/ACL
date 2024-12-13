@@ -15,6 +15,7 @@ public class SmokeBombAbility : MonoBehaviour
     private bool isCooldown = false;
     private Animator animator; // Reference to the Animator component
     private float currentCooldownTime = 0f;
+    public SoundEffectHandler soundEffectHandler;
 
     void Start()
     {
@@ -58,9 +59,10 @@ public class SmokeBombAbility : MonoBehaviour
     void ActivateSmokeBomb()
     {
         // Instantiate the smoke bomb at the Rogue's position
+        
         Vector3 bombPosition = transform.position;
         GameObject smokeBomb = Instantiate(smokeBombPrefab, bombPosition, Quaternion.identity);
-
+        soundEffectHandler.PlayExplosionSound();
         // Start the stun effect
         StartCoroutine(StunEnemies(bombPosition));
 

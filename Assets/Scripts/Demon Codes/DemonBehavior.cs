@@ -19,6 +19,7 @@ public class DemonBehavior : MonoBehaviour
     private float swingCooldownTimer = 0f;
     private bool isAttacking = false;
     private bool isExploding = false;
+    public SoundEffectHandler soundEffectHandler;
     private Transform rightHand;  // Reference to the right hand bone
     private Transform sword;  
     public GameObject bombPrefab; // Bomb prefab reference
@@ -37,14 +38,6 @@ public Transform explosionEffect;
     {
         HumanBodyBones[] bodyBones = (HumanBodyBones[])System.Enum.GetValues(typeof(HumanBodyBones));
         
-        foreach (HumanBodyBones bone in bodyBones)
-        {
-            Transform boneTransform = animator.GetBoneTransform(bone);
-            if (boneTransform != null)
-            {
-                Debug.Log($"{bone.ToString()}: {boneTransform.name}");  // Log each bone's name
-            }
-        }
     }
         // Find the right hand bone using Animator's GetBoneTransform method
     rightHand = animator.GetBoneTransform(HumanBodyBones.RightHand); // You can use LeftHand as well
@@ -186,6 +179,7 @@ public static void SetGlobalTarget2(GameObject target)
         if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= explodeRange)
         {
             animator.SetTrigger("Explode");
+            soundEffectHandler.PlayExplosionSound();
             // Apply explosion damage (you can use your own explosion logic here)
             // Always rotate to face the player
             Vector3 directionToPlayer = targetPlayer.transform.position - transform.position;

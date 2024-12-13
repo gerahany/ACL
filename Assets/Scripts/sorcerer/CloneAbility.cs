@@ -5,6 +5,7 @@ using TMPro;
 public class CloneAbility : MonoBehaviour
 {
     public GameObject clonePrefab; // Prefab of the clone
+    public SoundEffectHandler soundEffectHandler;
     public float cloneDuration = 5f; // Time the clone lasts before exploding
     public float explosionRadius = 5f; // Radius of the explosion effect
     public float explosionDamage = 50f; // Damage dealt by the explosion
@@ -43,13 +44,6 @@ public class CloneAbility : MonoBehaviour
             cooldown=10f;
         }
     }
-
-
-    // void StartSelectingPosition()
-    // {
-    //     isSelectingPosition = true;
-    //     Debug.Log("Select a position for the clone using right-click.");
-    // }
 
     void TryCreateClone()
     {
@@ -92,6 +86,7 @@ public class CloneAbility : MonoBehaviour
 
     IEnumerator CreateClone(Vector3 position)
     {
+        soundEffectHandler.PlayShieldSound();
 
         // Instantiate the clone at the specified position
         GameObject clone = Instantiate(clonePrefab, position, Quaternion.identity);

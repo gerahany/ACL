@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI; // For UI components like Slider and Text
 using TMPro;
+using System.Collections;
 public class BasePlayer : MonoBehaviour
 {
     private Image xpBarFill; // To access the XP bar's fill color
@@ -53,6 +54,9 @@ public class BasePlayer : MonoBehaviour
     private bool isInvincible = false; // Tracks whether the player is invincible
     private bool isSlowMotion = false;
     private bool ToggleCooldown = false;
+    public SoundEffectHandler soundEffectHandler;
+    public GameObject gameOverPanel;
+    public GameObject panels;
 
     void Start()
     {
@@ -192,20 +196,24 @@ public class BasePlayer : MonoBehaviour
             Debug.Log("Damage blocked by shield!");
             return;
         }
+       
         // Apply damage if no shield is active
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Ensure health doesn't go below 0
         
         if (currentHealth == 0)
         {
+            soundEffectHandler.PlayPlayerDeathSound();
             animator.SetTrigger("Die");
             float fallDistance = 5.0f; // You can adjust this value to control how far down the player falls
             Vector3 newPosition = transform.position;
             newPosition.y -= fallDistance; // Move the player down
             transform.position = newPosition;
+            StartCoroutine(ShowGameOverPanelAfterDelay(3f));
         }
         else
         {
+            soundEffectHandler.PlayPlayerDamageSound();
             animator.SetTrigger("Hit");
         }
 
@@ -218,6 +226,7 @@ public class BasePlayer : MonoBehaviour
     {
         if (healingPotions > 0 && currentHealth < maxHealth)
         {
+            soundEffectHandler.PlayHealingSound();
             healingPotions--;
             currentHealth += maxHealth / 2; // Heal by 50% of max health
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
@@ -331,7 +340,7 @@ public class BasePlayer : MonoBehaviour
     {
         if (levelText != null)
         {
-            levelText.text = $"Level:{currentLevel}   Ability Pts:{abilityPoints} Potions:{healingPotions}";
+            levelText.text = $"Level:{currentLevel}   Ability Pts:{abilityPoints} Potions:{healingPotions} Rune Fragments:{runeCount}";
         }
     }
 
@@ -340,6 +349,7 @@ public class BasePlayer : MonoBehaviour
     {
         if (healingPotions < maxHealingPotions)
         {
+            soundEffectHandler.PlayItemPickupSound();
             healingPotions++;
             AddPotionIcon();
             UpdateLevelUI();
@@ -439,7 +449,9 @@ private void SetupButton(Button button, TMP_Text buttonText, bool isUnlocked)
     }
     public void addrune()
     {
+        soundEffectHandler.PlayItemPickupSound();
         runeCount++;
+        UpdateLevelUI();
         Debug.Log($" fragment {runeCount}");
     }
     public int getrune()
@@ -463,9 +475,21 @@ private void SetupButton(Button button, TMP_Text buttonText, bool isUnlocked)
         coolZero = isActive;
     }
 
-public bool IsBasicAbilityUnlocked() => basicUnlocked;
+    public bool IsBasicAbilityUnlocked() => basicUnlocked;
     public bool IsDefensiveAbilityUnlocked() => defensiveUnlocked;
     public bool IsWildAbilityUnlocked() => wildUnlocked;
     public bool IsUltimateAbilityUnlocked() => ultimateUnlocked;
+    private IEnumerator ShowGameOverPanelAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        // Show the Game Over panel after the delay
+        if (gameOverPanel != null)
+        {
+            Time.timeScale = 0;
+            panels.SetActive(true);
+            gameOverPanel.SetActive(true);
+        }
+    }
 
     }

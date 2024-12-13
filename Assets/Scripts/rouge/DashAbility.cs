@@ -6,6 +6,7 @@ using TMPro;
 public class DashAbility : MonoBehaviour
 {
     public float dashSpeedMultiplier = 2f;
+    public SoundEffectHandler soundEffectHandler;
     public float dashCooldown = 5f;
     public GameObject dashEffectPrefab;
     public TMP_Text cooldownText;
@@ -91,6 +92,7 @@ public class DashAbility : MonoBehaviour
 
             if (IsWalkable(targetPosition))
             {
+                soundEffectHandler.PlayDashSound();
                 // Calculate direction and clamp distance
                 Vector3 direction = targetPosition - transform.position;
                 float distance = direction.magnitude;

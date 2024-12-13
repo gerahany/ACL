@@ -1,6 +1,7 @@
 
 using UnityEngine;
 
+
 public class RuneFragmentScript : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
@@ -10,6 +11,7 @@ public class RuneFragmentScript : MonoBehaviour
             BasePlayer player = other.GetComponent<BasePlayer>();
             if (player != null)
             {
+                
                 player.addrune();
             }
         }

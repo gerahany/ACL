@@ -11,6 +11,8 @@ public class PotionScript : MonoBehaviour
             {
                 if (player.healingPotions < player.maxHealingPotions)
                 {
+                    
+
                     player.AddPotion();
                     Destroy(gameObject);
                 }
