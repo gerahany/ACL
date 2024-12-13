@@ -1,4 +1,5 @@
-using UnityEngine;
+using UnityEngine;using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PauseResumeHandler : MonoBehaviour
 {
@@ -66,7 +67,7 @@ public class PauseResumeHandler : MonoBehaviour
         }
     }
 
-    void ResumeGame()
+    public void ResumeGame()
     {
         Debug.Log("Resuming the game...");
 
@@ -89,6 +90,110 @@ public class PauseResumeHandler : MonoBehaviour
         {
             mainPanel.SetActive(true);
             Debug.Log("Main panel activated.");
+        }
+    }public void RestartLevel()
+    {
+        Debug.Log("Restarting the level...");
+
+        // Get the selected character from PlayerPrefs
+        string selectedCharacter = PlayerPrefs.GetString("SelectedCharacter", "default");
+
+        // Close all UI elements
+        if (resumePanel != null)
+        {
+            resumePanel.SetActive(false);
+            Debug.Log("Resume panel deactivated.");
+        }
+        if (panels != null)
+        {
+            panels.SetActive(false);
+            Debug.Log("Panels deactivated.");
+        }
+        if (mainPanel != null)
+        {
+            mainPanel.SetActive(false);
+            Debug.Log("Main panel deactivated.");
+        }
+
+        // Start the scene reload process
+        StartCoroutine(ReloadScenesAndActivateCharacter(selectedCharacter));
+    }
+
+    private IEnumerator ReloadScenesAndActivateCharacter(string selectedCharacter)
+    {
+        // Unload the 'Panels' scene if it is already loaded
+        AsyncOperation unloadPanels = SceneManager.UnloadSceneAsync("Panels");
+        yield return unloadPanels;
+
+        Debug.Log("Panels scene unloaded");
+
+        // Load the 'newScene' and 'Panels' scenes
+        AsyncOperation loadNewScene = SceneManager.LoadSceneAsync("newScene", LoadSceneMode.Additive);
+        AsyncOperation loadPanels = SceneManager.LoadSceneAsync("Panels", LoadSceneMode.Additive);
+
+        // Wait for both scenes to load
+        yield return loadNewScene;
+        yield return loadPanels;
+
+        Debug.Log("newScene and Panels scenes loaded");
+
+        // Ensure the correct scene is active (newScene should be active now)
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("newScene"));
+        Debug.Log("newScene set as active scene");
+
+        // After scenes are loaded, activate the selected character in 'newScene'
+        ActivatePlayerInScene("newScene", selectedCharacter);
+    }
+
+    private void ActivatePlayerInScene(string sceneName, string characterName)
+    {
+        // Ensure the scene is active or properly referenced
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        if (!scene.isLoaded)
+        {
+            Debug.LogError($"Scene '{sceneName}' is not loaded!");
+            return;
+        }
+
+        // Set the scene to active (if needed)
+        SceneManager.SetActiveScene(scene);
+
+        // Find the "Characters" parent GameObject in the active scene
+        GameObject characterParent = GameObject.Find("Characters");
+        if (characterParent == null)
+        {
+            Debug.LogError("Parent 'Characters' object not found in the scene!");
+            return;
+        }
+
+        // Deactivate all characters within the "Characters" parent
+        foreach (Transform child in characterParent.transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+
+        // Activate the selected character by its name (case-insensitive)
+        GameObject selectedPlayer = characterParent.transform.Find(characterName.ToLower())?.gameObject;
+        if (selectedPlayer != null)
+        {
+            selectedPlayer.SetActive(true);
+            Debug.Log($"{characterName} activated in scene {sceneName}");
+        }
+        else
+        {
+            Debug.LogError($"{characterName} not found under 'Characters' object!");
+        }
+
+        // Find the "Footers" GameObject in the scene and activate it
+        GameObject footers = GameObject.Find("Footers");
+        if (footers != null)
+        {
+            footers.SetActive(true);
+            Debug.Log("Footers activated in the scene.");
+        }
+        else
+        {
+            Debug.LogError("Footers object not found in the scene!");
         }
     }
 }

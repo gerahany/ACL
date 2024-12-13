@@ -101,6 +101,9 @@ public class CharacterSelectionHandler : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(selectedCharacter))
         {
+            PlayerPrefs.SetString("SelectedCharacter", selectedCharacter);
+            PlayerPrefs.Save(); // Save to persist the data
+
             GameObject panels = GameObject.Find("Panels");
             if (panels != null)
             {
