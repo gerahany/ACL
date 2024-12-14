@@ -115,7 +115,7 @@ public class BossBehavior : MonoBehaviour
                 return;
             }
 
-            Debug.Log("Updating health bar...");
+            //Debug.Log("Updating health bar...");
 
             // Calculate active segments based on current health
             int activeSegments = Mathf.CeilToInt(
@@ -312,7 +312,7 @@ public class BossBehavior : MonoBehaviour
     {
         UpdateHealthBar();
         // UpdateShieldHealthBar();
-        Debug.Log("Active minions: " + activeMinions);
+        //Debug.Log("Active minions: " + activeMinions);
         if (isDead) return;
 
         FaceWanderer();
