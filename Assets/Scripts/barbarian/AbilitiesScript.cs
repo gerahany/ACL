@@ -9,7 +9,7 @@ using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-public class Barbarian : BasePlayer
+public class Barbarian : MonoBehaviour
 {
     public Animator animator;
     public SoundEffectHandler soundEffectHandler;
@@ -202,7 +202,7 @@ Vector3 GetMouseWorldPosition()
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             // Check if the hit object is a Minion or Demon
-            if (hit.collider.CompareTag("Minion") || hit.collider.CompareTag("Demon"))
+            if (hit.collider.CompareTag("Minion") || hit.collider.CompareTag("MinionBoss") || hit.collider.CompareTag("Demon") || hit.collider.CompareTag("Lilith") || hit.collider.CompareTag("Shield") || hit.collider.CompareTag("Aura"))
             {
                 Debug.Log($"Bash targeting: {hit.collider.name}");
 
@@ -278,16 +278,35 @@ StartCoroutine(TriggerBloodEffect());
 
     // Apply the Bash damage (for example, you could hit the enemy here)
 void ApplyBashDamage(GameObject enemy)
-{
+    {
         // Check if the enemy has a MinionHealth component
         minionhealthbar minionHealth = enemy.GetComponent<minionhealthbar>();
         demonhealthbar demonHealth = enemy.GetComponent<demonhealthbar>();
+        BossBehavior BossBehavior = enemy.GetComponent<BossBehavior>();
+        ShieldHealthbar shieldHealth = enemy.GetComponent<ShieldHealthbar>();
+        MinionHealthbarBoss minionhealthbarboss = enemy.GetComponent<MinionHealthbarBoss>();
+        aurascript aura = enemy.GetComponent<aurascript>();
+
 
         if (minionHealth != null)
         {
             Debug.Log("Bash hit the minion!");
 
             minionHealth.TakeDamage(5);  // Apply 5 damage to the minion
+            Debug.Log($"Bash hit {enemy.name} for 5 damage!");
+        }
+        else if (aura != null)
+        {
+            Debug.Log("Bash hit the minion!");
+
+            aura.TakeAuraDamage(20);  // Apply 5 damage to the minion
+            Debug.Log($"Bash hit {enemy.name} for 5 damage!");
+        }
+        else if (minionhealthbarboss != null)
+        {
+            Debug.Log("Bash hit the minion!");
+
+            minionhealthbarboss.TakeDamage(5);  // Apply 5 damage to the minion
             Debug.Log($"Bash hit {enemy.name} for 5 damage!");
         }
         else if (demonHealth != null)
@@ -298,36 +317,86 @@ void ApplyBashDamage(GameObject enemy)
             Debug.Log($"Bash hit {enemy.name} for 5 damage!");
         }
 
+        else if (BossBehavior != null)
+        {
+            Debug.Log("Bash hit the minion!");
+
+            BossBehavior.TakeDamage(5);  // Apply 5 damage to the minion
+            Debug.Log($"Bash hit {enemy.name} for 5 damage!");
+        }
+        else if (shieldHealth != null)
+        {
+            Debug.Log("Bash hit the minion!");
+
+            shieldHealth.TakeDamage(5);  // Apply 5 damage to the minion
+            Debug.Log($"Bash hit {enemy.name} for 5 damage!");
+        }
+
 
         else
-    {
-        Debug.LogWarning($"No MinionHealth script found on {enemy.name}!");
+        {
+            Debug.LogWarning($"No MinionHealth script found on {enemy.name}!");
+        }
     }
-}
 
 
 
 void ApplyIronMaelstromDamage(Vector3 position)
-{
-    // Get all colliders in a small radius (AoE around the player's position)
-    Collider[] hitColliders = Physics.OverlapSphere(position, 3f); // Adjust radius as needed
-    foreach (Collider collider in hitColliders)
     {
-        minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
-        demonhealthbar demonHealth = collider.GetComponent<demonhealthbar>();
+        // Get all colliders in a small radius (AoE around the player's position)
+        Collider[] hitColliders = Physics.OverlapSphere(position, 3f); // Adjust radius as needed
+        foreach (Collider collider in hitColliders)
+        {
+            minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
+            demonhealthbar demonHealth = collider.GetComponent<demonhealthbar>();
+            BossBehavior BossBehavior = collider.GetComponent<BossBehavior>();
+            ShieldHealthbar shieldHealth = collider.GetComponent<ShieldHealthbar>();
+            MinionHealthbarBoss minionhealthbarboss = collider.GetComponent<MinionHealthbarBoss>();
+            aurascript aura = collider.GetComponent<aurascript>();
 
-        if (minionhealthbar != null)
-        {
-            minionhealthbar.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
-            Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
-        }
-        if (demonHealth != null)
-        {
-            demonHealth.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
-            Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
+
+            if (minionhealthbar != null)
+            {
+                minionhealthbar.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
+                Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
+            }
+            else if (minionhealthbarboss != null)
+            {
+                minionhealthbarboss.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
+                Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
+            }
+            else if (demonHealth != null)
+            {
+                demonHealth.TakeDamage(10);  // Apply 10 damage to each enemy in the AoEs
+                Debug.Log($"Iron Maelstrom hit {collider.name} for 10 damage!");
+            }
+            else if (aura != null)
+            {
+                Debug.Log("Bash hit the minion!");
+
+                aura.TakeAuraDamage(20);  // Apply 5 damage to the minion
+                Debug.Log($"Bash hit {collider.name} for 5 damage!");
+            }
+            else if (BossBehavior != null)
+            {
+                Debug.Log("Bash hit the minion!");
+
+                BossBehavior.TakeDamage(10);  // Apply 5 damage to the minion
+                BossBehavior.TakeAuraDamage(25);
+
+                Debug.Log($"Bash hit {collider.name} for 5 damage!");
+            }
+            else if (shieldHealth != null)
+            {
+                Debug.Log("Bash hit the minion!");
+
+                shieldHealth.TakeDamage(10);  // Apply 5 damage to the minion
+                Debug.Log($"Bash hit {collider.name} for 5 damage!");
+            }
+
+
         }
     }
-}
 
 
     // 2. Shield Ability (Defensive)
@@ -339,7 +408,7 @@ void UseShield()
         shieldBall.SetActive(true); 
         //shieldEffect.Play(); // Activate the shield visually
         animator.SetTrigger("Shield");  // Trigger the shield animation
-        Debug.Log($"{playerName} activated Shield!");
+        //Debug.Log($"{playerName} activated Shield!");
         soundEffectHandler.PlayShieldSound(); // Play shield sound
         StartCoroutine(ShieldCoroutine());
     }
@@ -371,7 +440,7 @@ IEnumerator ShieldCoroutine()
             ApplyIronMaelstromDamage(transform.position);
             animator.SetTrigger("IronMaelstrom");
 
-            Debug.Log($"{playerName} used Iron Maelstrom!");
+            //Debug.Log($"{playerName} used Iron Maelstrom!");
             
             // Apply AoE damage logic here
             StartCoroutine(TriggerBloodEffect());
@@ -411,35 +480,82 @@ IEnumerator ShieldCoroutine()
         }
     }
     
-    void ApplyChargeDamage()
-{
-    // Get all colliders in a small radius (for collision detection during the charge)
-    Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f); // Adjust radius as needed
-    
-    foreach (Collider collider in hitColliders)
+    public void ApplyChargeDamage()
     {
-        minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
-         demonhealthbar demonHealth = collider.GetComponent<demonhealthbar>();
-        if (minionhealthbar != null)
-        {
-            minionhealthbar.TakeDamage(20);  // Apply 20 damage to minions/demons
-            Debug.Log($"Charge hit {collider.name} for 20 damage!");
-        }
-        if (demonHealth != null)
-        {
-            demonHealth.TakeDamage(20);  // Apply 20 damage to minions/demons
-            Debug.Log($"Charge hit {collider.name} for 20 damage!");
-        }
+        // Get all colliders in a small radius (for collision detection during the charge)
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f); // Adjust radius as needed
 
+        // Use a HashSet to track processed objects during this call
+        HashSet<GameObject> processedObjects = new HashSet<GameObject>();
 
-        // Destroy breakable objects
-        if (collider.CompareTag("Breakable"))
+        foreach (Collider collider in hitColliders)
         {
-            Destroy(collider.gameObject);  // Destroy breakable object
-            Debug.Log($"{collider.name} was destroyed by the charge!");
+            // Get the root object (to handle objects with multiple colliders)
+            GameObject rootObject = collider.gameObject;
+
+            // Skip if this object has already been processed
+            if (processedObjects.Contains(rootObject))
+            {
+                Debug.Log($"Skipped {rootObject.name} because it has already been processed in this call.");
+                continue;
+            }
+
+            // Add the object to the HashSet to mark it as processed
+            processedObjects.Add(rootObject);
+
+            // Apply damage to the appropriate component
+            minionhealthbar minionhealthbar = collider.GetComponent<minionhealthbar>();
+            MinionHealthbarBoss minionhealthbarboss = collider.GetComponent<MinionHealthbarBoss>();
+            demonhealthbar demonHealth = collider.GetComponent<demonhealthbar>();
+            BossBehavior BossBehavior = collider.GetComponent<BossBehavior>();
+            ShieldHealthbar shieldHealth = collider.GetComponent<ShieldHealthbar>();
+            aurascript aura = collider.GetComponent<aurascript>();
+
+            if (minionhealthbar != null)
+            {
+                minionhealthbar.TakeDamage(20);  // Apply 20 damage to minions/demons
+                Debug.Log($"Charge hit {collider.name} for 20 damage!");
+            }
+            else if (demonHealth != null)
+            {
+                demonHealth.TakeDamage(20);  // Apply 20 damage to minions/demons
+                Debug.Log($"Charge hit {collider.name} for 20 damage!");
+            }
+            else if (minionhealthbarboss != null)
+            {
+                minionhealthbarboss.TakeDamage(20);  // Apply 20 damage to minions/demons
+                Debug.Log($"Charge hit {collider.name} for 20 damage!");
+            }
+            else if (BossBehavior != null)
+            {
+                BossBehavior.TakeDamage(20);  // Apply 20 damage to minions/demons
+                BossBehavior.TakeAuraDamage(35);
+
+                Debug.Log($"Charge hit {collider.name} for 20 damage!");
+            }
+            else if (aura != null)
+            {
+                Debug.Log("Bash hit the minion!");
+
+                aura.TakeAuraDamage(20);  // Apply 5 damage to the minion
+                Debug.Log($"Bash hit {collider.name} for 5 damage!");
+            }
+            else if (shieldHealth != null)
+            {
+                Debug.Log("Bash hit the minion!");
+
+                shieldHealth.TakeDamage(10);  // Apply 5 damage to the minion
+                Debug.Log($"Bash hit {collider.name} for 5 damage!");
+            }
+
+            // Destroy breakable objects
+            if (collider.CompareTag("Breakable"))
+            {
+                Destroy(collider.gameObject);  // Destroy breakable object
+                Debug.Log($"{collider.name} was destroyed by the charge!");
+            }
         }
     }
-}
 IEnumerator ChargeForward(Vector3 targetPosition)
 {
     float chargeSpeed = 15f;          // Charge speed

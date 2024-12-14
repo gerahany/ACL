@@ -7,7 +7,6 @@ public class GateController : MonoBehaviour
 
     private GameObject player; // Reference to the player GameObject
     private bool isGateOpen = false; // Track the state of the gate
-    private Vector3 initialGatePosition; // Store the initial position of the gate
 
     private void Start()
     {
@@ -20,16 +19,23 @@ public class GateController : MonoBehaviour
         }
 
         // Save the initial position of the gate
-        initialGatePosition = transform.position;
-        Debug.Log($"Gate initial position saved: {initialGatePosition}");
     }
+       
 
+    private void Update()
+    {
+        if (player == null)
+        {
+            player = GameObject.FindWithTag("Player");
+            return;
+        }
+    }
     public void CheckProximity()
     {
         if (player == null)
             return;
 
-        float distanceToPlayer = Vector3.Distance(player.transform.position, initialGatePosition);
+        float distanceToPlayer = Vector3.Distance(player.transform.position, transform.position);
 
         if (distanceToPlayer <= proximityDistance && !isGateOpen)
         {

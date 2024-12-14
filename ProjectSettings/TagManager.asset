@@ -16,6 +16,10 @@ TagManager:
   - Flooring
   - Potion
   - RuneFragment
+  - Lilith
+  - Shield
+  - Aura
+  - MinionBoss
   layers:
   - Default
   - TransparentFX

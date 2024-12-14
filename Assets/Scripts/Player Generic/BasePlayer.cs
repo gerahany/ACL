@@ -15,7 +15,7 @@ public class BasePlayer : MonoBehaviour
     public Button defensiveButton; // Button for Defensive ability
     public Button wildButton;      // Button for Wild ability
     public Button ultimateButton;  // Button for Ultimate ability
-    private int runeCount = 0; // To track the number of collected rune fragments
+    private int runeCount = 3; // To track the number of collected rune fragments
 
     // Tracks the state of abilities
     private bool basicUnlocked = true;
@@ -77,6 +77,7 @@ public class BasePlayer : MonoBehaviour
         UpdateHealthUI();
         UpdateLevelUI();
         UpdateXPUI();
+        UpdateLevelUI();
 
         if(currentHealth==0){
            animator.SetTrigger("Die");
@@ -118,7 +119,7 @@ public class BasePlayer : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
             GainXP(100); 
-             UpdateXPUI();
+            // UpdateXPUI();
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
@@ -161,6 +162,10 @@ public class BasePlayer : MonoBehaviour
         {
             animator.SetTrigger("Die");
         }
+        // UpdateXPUI();
+        // UpdateLevelUI();
+        //  UpdateHealthUI();
+
 
         }
 
