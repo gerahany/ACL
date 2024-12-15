@@ -153,7 +153,7 @@ public class ArrowsAbility : MonoBehaviour
 
     foreach (Collider collider in hitColliders)
     {
-        if (collider.CompareTag("Demon") || collider.CompareTag("Minion"))
+        if (collider.CompareTag("Demon") || collider.CompareTag("Minion") || collider.CompareTag("Lilith") || collider.CompareTag("Shield") || collider.CompareTag("Aura") || collider.CompareTag("MinionBoss"))
         {
             // Check if this specific game object has already been damaged
             if (!alreadyDamagedObjects.Contains(collider.gameObject))
@@ -189,11 +189,67 @@ public class ArrowsAbility : MonoBehaviour
                         SlowDownAgent(agent);
                     }
                 }
-            }
-        }
-    }
-}
 
+                if (collider.CompareTag("MinionBoss"))
+                {
+                    MinionHealthbarBoss minionHealth = collider.GetComponent<MinionHealthbarBoss>();
+                    UnityEngine.AI.NavMeshAgent agent = collider.GetComponent<UnityEngine.AI.NavMeshAgent>(); // Get the NavMeshAgent component
+                    
+                    if (minionHealth != null && agent != null)
+                    {
+                        minionHealth.TakeDamage(arrowDamage);
+                        Debug.Log($"Arrow hit MinionBoss {collider.name} for {arrowDamage} damage!");
+
+                        // Slow down the MinionBoss's movement
+                        SlowDownAgent(agent);
+                    }
+                }
+
+                if (collider.CompareTag("Lilith"))
+                {
+                    BossBehavior bossBehavior = collider.GetComponent<BossBehavior>();
+                    UnityEngine.AI.NavMeshAgent agent = collider.GetComponent<UnityEngine.AI.NavMeshAgent>(); // Get the NavMeshAgent component
+                    
+                    if (bossBehavior != null && agent != null)
+                    {
+                        bossBehavior.TakeDamage(arrowDamage);
+                        Debug.Log($"Arrow hit Lilith {collider.name} for {arrowDamage} damage!");
+
+                        // Slow down Lilith's movement
+                        SlowDownAgent(agent);
+                    }
+                }
+
+                if (collider.CompareTag("Shield"))
+                {
+                    ShieldHealthbar shieldHealth = collider.GetComponent<ShieldHealthbar>();
+                    UnityEngine.AI.NavMeshAgent agent = collider.GetComponent<UnityEngine.AI.NavMeshAgent>(); // Get the NavMeshAgent component
+                    
+                    if (shieldHealth != null && agent != null)
+                    {
+                        shieldHealth.TakeDamage(arrowDamage);
+                        Debug.Log($"Arrow hit Shield {collider.name} for {arrowDamage} damage!");
+
+                        // Slow down Shield's movement
+                        SlowDownAgent(agent);
+                    }
+                }
+
+                if (collider.CompareTag("Aura"))
+                {
+                    aurascript aura = collider.GetComponent<aurascript>();
+                    UnityEngine.AI.NavMeshAgent agent = collider.GetComponent<UnityEngine.AI.NavMeshAgent>(); // Get the NavMeshAgent component
+                    
+                    if (aura != null && agent != null)
+                    {
+                        aura.TakeAuraDamage(arrowDamage+15);
+                        Debug.Log($"Arrow hit Aura {collider.name} for {arrowDamage} damage!");
+
+                        // Slow down Aura's movement
+                        SlowDownAgent(agent);
+                    }
+            }
+        }}}}
     void SlowDownAgent(UnityEngine.AI.NavMeshAgent agent)
     {
         float originalSpeed = agent.speed; // Save the original speed

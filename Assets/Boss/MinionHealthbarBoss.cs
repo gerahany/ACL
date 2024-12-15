@@ -76,13 +76,9 @@ public class MinionHealthbarBoss : MonoBehaviour
         {
             BasePlayer activePlayer = GameManager.ActivePlayer;
 
-            if (activePlayer != null)
+             foreach (BasePlayer player in BasePlayer.AllPlayers)
             {
-                activePlayer.GainXP(10); // Award 10 XP to the active player
-            }
-            else
-            {
-                Debug.LogError("No active player found!");
+                player.GainXP(10);
             }
 
             isDead = true; // Mark demon as dead

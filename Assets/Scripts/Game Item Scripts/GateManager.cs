@@ -37,7 +37,11 @@ public class GateManager : MonoBehaviour
         if (!gate.activeSelf)
         {
             BasePlayer basePlayer = player.GetComponent<BasePlayer>();
-
+            if (PlayerPrefs.GetInt("BossLevelSelected", 0) == 1)
+            {
+                StartCoroutine(TransformPlayerAfterDelay(basePlayer, 0f)); // 3-second delay
+            }
+            else
             StartCoroutine(TransformPlayerAfterDelay(basePlayer, 2f)); // 3-second delay
 
             float distanceToPlayer = Vector3.Distance(player.transform.position, gateController.transform.position);

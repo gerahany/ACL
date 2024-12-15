@@ -17,7 +17,7 @@ public class BossBehavior : MonoBehaviour
     private Transform[] healthSegments; // Individual health bar segments
     private GameObject shieldHealthBar; // Instance of the shield health bar
     private Transform[] shieldSegments;
-    
+    public SoundEffectHandler soundEffectHandler;
 
     [Header("Health Settings")]
     public float phase1Health = 50f; // Phase 1 health
@@ -280,6 +280,7 @@ public class BossBehavior : MonoBehaviour
     }
     private void SummonMinions()
     {
+        soundEffectHandler.PlayBossSummonSound();
         activeMinions = 3;
 
         if (randMinionBoss != null && SummonEffect != null)
@@ -301,7 +302,7 @@ public class BossBehavior : MonoBehaviour
         Debug.Log("Performing Divebomb!");
         animator.SetTrigger("Divebomb");
        
-        
+        soundEffectHandler.PlayBossStompSound();
             Collider[] hitColliders = Physics.OverlapSphere(transform.position, 10f);
         Debug.Log("Performing Divebomb!1");
         foreach (Collider collider in hitColliders)
@@ -357,6 +358,7 @@ public class BossBehavior : MonoBehaviour
     {
         Debug.Log("Using Blood Spikes!");
         animator.SetTrigger("SwingHands");
+        soundEffectHandler.PlayBossSwingSound();
 
         foreach (Transform point in bloodSpikesPoints)
         {
@@ -435,6 +437,7 @@ public class BossBehavior : MonoBehaviour
                 if (animator != null)
                 {
                     animator.SetTrigger("Damaged");
+                    soundEffectHandler.PlayBossDamageSound();
                 }
                 else
                 {
@@ -574,6 +577,7 @@ public class BossBehavior : MonoBehaviour
     }
     private void ActivateAura()
     {
+        
         Debug.Log("Activating Reflective Aura...");
 
         if (!isPhase2)
@@ -587,6 +591,7 @@ public class BossBehavior : MonoBehaviour
             Debug.Log("Shield is already active. Exiting.");
             return;
         }
+        soundEffectHandler.PlayBossSpellSound();
 
         float reflectiveAuraRange = 10f;
         float safeDistance = 10f;
@@ -657,6 +662,8 @@ public class BossBehavior : MonoBehaviour
             {
                 Die();
                 animator.SetTrigger("Die");
+                soundEffectHandler.PlayBossDeathSound();
+                
             }
             else
             {
@@ -682,6 +689,7 @@ public class BossBehavior : MonoBehaviour
     {
         isDead = true;
         animator.SetTrigger("Die");
+        soundEffectHandler.PlayBossDeathSound();
         Debug.Log("Lilith has been defeated!");
     }
 }

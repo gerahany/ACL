@@ -53,13 +53,13 @@ public class RogueAbilities : MonoBehaviour
         }
     }
 
-    void AttemptArrow()
+void AttemptArrow()
     {
         soundEffectHandler.PlayArrowFireSound();
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, raycastRange))
         {
-            if ((hit.collider.CompareTag("Demon") || hit.collider.CompareTag("Minion")) && hit.collider.gameObject != gameObject)
+            if ((hit.collider.CompareTag("Demon") || hit.collider.CompareTag("Minion") || hit.collider.CompareTag("MinionBoss") || hit.collider.CompareTag("Lilith") || hit.collider.CompareTag("Shield") || hit.collider.CompareTag("Aura")) && hit.collider.gameObject != gameObject)
             {
                 targetPosition = hit.point;
 

@@ -2,8 +2,11 @@ using UnityEngine;
 using UnityEngine.UI; // For UI components like Slider and Text
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 public class BasePlayer : MonoBehaviour
 {
+    public static List<BasePlayer> AllPlayers = new List<BasePlayer>();
     private Image xpBarFill; // To access the XP bar's fill color
     public Text xpText; // XP text for displaying XP progress
     public Slider xpBar; // XP bar UI Slider
@@ -15,7 +18,7 @@ public class BasePlayer : MonoBehaviour
     public Button defensiveButton; // Button for Defensive ability
     public Button wildButton;      // Button for Wild ability
     public Button ultimateButton;  // Button for Ultimate ability
-    private int runeCount = 3; // To track the number of collected rune fragments
+    private int runeCount = 0; // To track the number of collected rune fragments
 
     // Tracks the state of abilities
     private bool basicUnlocked = true;
@@ -103,6 +106,18 @@ public class BasePlayer : MonoBehaviour
         SetupButton(ultimateButton, ultimateButtonText, ultimateUnlocked);
     }
 
+private void OnEnable()
+{
+    AllPlayers.Add(this);
+    Debug.Log($"BasePlayer {gameObject.name} added. Total players: {AllPlayers.Count}");
+}
+
+private void OnDisable()
+{
+    AllPlayers.Remove(this);
+    Debug.Log($"BasePlayer {gameObject.name} removed. Total players: {AllPlayers.Count}");
+}
+
     //Test XPBar method
     private void Update()
     {
@@ -119,7 +134,8 @@ public class BasePlayer : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
             GainXP(100); 
-            // UpdateXPUI();
+            UpdateXPUI();
+            UpdateLevelUI();
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
@@ -183,7 +199,9 @@ public class BasePlayer : MonoBehaviour
             if(currentXP>=400){
                 currentXP=400;
             }
-
+            Debug.Log("maxxp");
+            
+            Debug.Log(currentXP);
             UpdateXPUI();
         }
     public void TakeDamage(int damage)
@@ -307,7 +325,7 @@ public class BasePlayer : MonoBehaviour
     {
         if (xpBar != null)
         {
-            xpBar.value = currentXP; // Update the slider's progress
+            xpBar.value = currentXP; 
         }
 
         if (xpBarFill != null)
@@ -318,20 +336,6 @@ public class BasePlayer : MonoBehaviour
             {
                 xpBarFill.color = Color.clear; // Less than 25%, transparent
             }
-
-            // // Change color based on XP percentage (example: green to yellow to red)
-            // else if (xpPercentage < 0.5f)
-            // {
-            //     xpBarFill.color = Color.red; // Less than 50%, red
-            // }
-            // else if (xpPercentage < 0.75f)
-            // {
-            //     xpBarFill.color = Color.yellow; // Between 50% and 75%, yellow
-            // }
-            // else
-            // {
-            //     xpBarFill.color = Color.green; // Above 75%, green
-            // }
             xpBarFill.color = Color.blue;
         }
 

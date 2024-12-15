@@ -16,26 +16,7 @@ public class ShieldHealthbar : MonoBehaviour
     {
         // Initialize health and get all dash images
         currentHealth = maxHealth;
-
-        // foreach (Transform child in transform[0])
-        // {
-        //     Debug.Log("child: " + child);
-        //     dashes.Add(child.gameObject); // Add each child (dash) to the list
-        // }
-
         Transform healthBarParent = transform; // Or reference to the correct parent
-
-        // for (int i = 0; i < healthBarParent.childCount; i++)
-        // {
-        //     childTransform = healthBarParent.GetChild(i););
-        //     // Use childTransform to access the child's components or properties
-        // }
-
-        // for (int i = 0; i < childTransform.childCount; i++)
-        // {
-        //     dashes.Add(childTransform.GetChild(i).gameObject);
-        //     Debug.Log("child: " + childTransform.GetChild(i).gameObject);
-        // }
 
 
         Transform childTransform = healthBarParent.GetChild(0);
@@ -65,9 +46,11 @@ public class ShieldHealthbar : MonoBehaviour
 
     //     UpdateHealthBar();
     // }
+    private int h;
 
     public void TakeDamage(int damage)
     {
+        h = currentHealth;
         currentHealth -= damage;
         Debug.Log("Shield took damage: " + damage);
         Debug.Log("Shield health: " + currentHealth);
@@ -83,6 +66,8 @@ public class ShieldHealthbar : MonoBehaviour
             {
                 boss.DeactivateReflectiveAura();
             }
+            if (damage - h > 0)
+                boss.TakeDamage( damage-h);
         }
     }
 

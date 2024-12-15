@@ -73,16 +73,8 @@ public void TakeDamage(int damage)
         // Check if health reaches 0 and trigger DieMinion animation
         if (currentHealth <= 0 && !isDead)
         {
-            BasePlayer activePlayer = GameManager.ActivePlayer;
+          GameManager.Instance.AwardXPToAllPlayers(10);
 
-            if (activePlayer != null)
-            {
-                activePlayer.GainXP(10); // Award 10 XP to the active player
-            }
-            else
-            {
-                Debug.LogError("No active player found!");
-            }
 
             isDead = true; // Mark demon as dead
             RandMinion randMinion = FindObjectOfType<RandMinion>();

@@ -40,7 +40,7 @@ public class Arrow2 : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         // Check for valid collision
-        if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion"))
+        if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion") || collision.gameObject.CompareTag("MinionBoss") || collision.gameObject.CompareTag("Lilith") || collision.gameObject.CompareTag("Shield") || collision.gameObject.CompareTag("Aura"))
         {
             Debug.Log($"Arrow hit: {collision.gameObject.name}");
 
@@ -66,6 +66,52 @@ public class Arrow2 : MonoBehaviour
                 }
             }
 
+            // Deal damage if the collider is a MinionBoss
+            if (collision.gameObject.CompareTag("MinionBoss"))
+            {
+                MinionHealthbarBoss minionHealthBoss = collision.gameObject.GetComponent<MinionHealthbarBoss>();
+                if (minionHealthBoss != null)
+                {
+                    minionHealthBoss.TakeDamage(5);
+                    Debug.Log($"Arrow dealt {damage} damage to MinionBoss: {collision.gameObject.name}");
+                }
+            }
+
+            // Deal damage if the collider is a Lilith
+            if (collision.gameObject.CompareTag("Lilith"))
+            {
+                BossBehavior bossBehavior = collision.gameObject.GetComponent<BossBehavior>();
+                if (bossBehavior != null)
+                {
+                    bossBehavior.TakeDamage(5);
+                    Debug.Log($"Arrow dealt {damage} damage to Lilith: {collision.gameObject.name}");
+                }
+            }
+
+            // Deal damage if the collider is a Shield
+            if (collision.gameObject.CompareTag("Shield"))
+            {
+                ShieldHealthbar shieldHealth = collision.gameObject.GetComponent<ShieldHealthbar>();
+                if (shieldHealth != null)
+                {
+                    shieldHealth.TakeDamage(5);
+                    Debug.Log($"Arrow dealt {damage} damage to Shield: {collision.gameObject.name}");
+                }
+            }
+
+            // Deal damage if the collider is an Aura
+            if (collision.gameObject.CompareTag("Aura"))
+            {
+                aurascript aura = collision.gameObject.GetComponent<aurascript>();
+                if (aura != null)
+                {
+                    aura.TakeAuraDamage(20);
+                    Debug.Log($"Arrow dealt {damage} damage to Aura: {collision.gameObject.name}");
+                }
+            }
+
+            
+
             // Destroy the arrow after hitting a valid target
             Destroy(gameObject);
         }
@@ -77,4 +123,5 @@ public class Arrow2 : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
 }

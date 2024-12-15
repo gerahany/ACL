@@ -7,6 +7,7 @@ public class GateController : MonoBehaviour
 
     private GameObject player; // Reference to the player GameObject
     private bool isGateOpen = false; // Track the state of the gate
+    private bool trans = false;
 
     private void Start()
     {
@@ -29,12 +30,24 @@ public class GateController : MonoBehaviour
             player = GameObject.FindWithTag("Player");
             return;
         }
-    }
+       
+           else if (!trans && PlayerPrefs.GetInt("BossLevelSelected", 0) == 1)
+            {
+                BasePlayer basePlayer = player.GetComponent<BasePlayer>();
+            if (basePlayer != null)
+            {
+                OpenGate(basePlayer);
+
+            }
+            trans = true;
+                      }
+
+        }
     public void CheckProximity()
     {
         if (player == null)
             return;
-
+       
         float distanceToPlayer = Vector3.Distance(player.transform.position, transform.position);
 
         if (distanceToPlayer <= proximityDistance && !isGateOpen)
@@ -60,6 +73,7 @@ public class GateController : MonoBehaviour
         gameObject.SetActive(false); // Make the gate disappear
         Debug.Log("Gate opened!");
     }
+   
 
     private void CloseGate()
     {

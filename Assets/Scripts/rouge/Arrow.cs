@@ -38,15 +38,17 @@ public class Arrow : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+   private void OnCollisionEnter(Collision collision)
     {
         Debug.Log("one");
         // Destroy the arrow on valid collision
         if (collision.gameObject.CompareTag("Demon") || collision.gameObject.CompareTag("Minion") ||
-            collision.gameObject.CompareTag("Breakable") || collision.gameObject.CompareTag("Flooring"))
+            collision.gameObject.CompareTag("Breakable") || collision.gameObject.CompareTag("Flooring")
+            || collision.gameObject.CompareTag("Lilith") || collision.gameObject.CompareTag("Shield") || collision.gameObject.CompareTag("Aura") || collision.gameObject.CompareTag("MinionBoss"))
         {
             Debug.Log("two");
             Destroy(gameObject);
         }
     }
+
 }

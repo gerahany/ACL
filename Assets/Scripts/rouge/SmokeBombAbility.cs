@@ -93,6 +93,11 @@ public class SmokeBombAbility : MonoBehaviour
         {
             demon.Stun(stunDuration); // Stun the demon for the given duration
         }
+        // BossBehavior boss = enemyCollider.GetComponent<BossBehavior>();
+        // if (boss != null)
+        // {
+        //     boss.Stun(stunDuration); // Stun the demon for the given duration
+        // }
     }
 
     yield return null; // Finish the method

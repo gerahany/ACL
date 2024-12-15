@@ -35,6 +35,9 @@ public class Barbarian : MonoBehaviour
     public TMP_Text shieldCooldownText;
     public TMP_Text ironMaelstromCooldownText;
     public TMP_Text chargeCooldownText;
+    public bool hitlilith = false;
+    public bool hitshield = false;
+
 
 
     void Start()
@@ -374,7 +377,7 @@ void ApplyIronMaelstromDamage(Vector3 position)
             {
                 Debug.Log("Bash hit the minion!");
 
-                aura.TakeAuraDamage(20);  // Apply 5 damage to the minion
+                aura.TakeAuraDamage(25);  // Apply 5 damage to the minion
                 Debug.Log($"Bash hit {collider.name} for 5 damage!");
             }
             else if (BossBehavior != null)
@@ -382,7 +385,7 @@ void ApplyIronMaelstromDamage(Vector3 position)
                 Debug.Log("Bash hit the minion!");
 
                 BossBehavior.TakeDamage(10);  // Apply 5 damage to the minion
-                BossBehavior.TakeAuraDamage(25);
+                //BossBehavior.TakeAuraDamage(25);
 
                 Debug.Log($"Bash hit {collider.name} for 5 damage!");
             }
@@ -515,6 +518,7 @@ IEnumerator ShieldCoroutine()
             {
                 minionhealthbar.TakeDamage(20);  // Apply 20 damage to minions/demons
                 Debug.Log($"Charge hit {collider.name} for 20 damage!");
+                
             }
             else if (demonHealth != null)
             {
@@ -528,23 +532,28 @@ IEnumerator ShieldCoroutine()
             }
             else if (BossBehavior != null)
             {
-                BossBehavior.TakeDamage(20);  // Apply 20 damage to minions/demons
-                BossBehavior.TakeAuraDamage(35);
-
+                if (!hitlilith)
+                {
+                    BossBehavior.TakeDamage(20);  // Apply 20 damage to minions/demons
+                    hitlilith = true;
+                }
                 Debug.Log($"Charge hit {collider.name} for 20 damage!");
             }
             else if (aura != null)
             {
                 Debug.Log("Bash hit the minion!");
 
-                aura.TakeAuraDamage(20);  // Apply 5 damage to the minion
+                aura.TakeAuraDamage(35);  // Apply 5 damage to the minion
                 Debug.Log($"Bash hit {collider.name} for 5 damage!");
             }
             else if (shieldHealth != null)
             {
                 Debug.Log("Bash hit the minion!");
-
-                shieldHealth.TakeDamage(10);  // Apply 5 damage to the minion
+                if (!hitshield)
+                {
+                    shieldHealth.TakeDamage(20);
+                    hitshield = true;
+                } // Apply 5 damage to the minion
                 Debug.Log($"Bash hit {collider.name} for 5 damage!");
             }
 
@@ -584,8 +593,9 @@ IEnumerator ChargeForward(Vector3 targetPosition)
         // Timeout check
         if (elapsedTime >= timeoutDuration)
         {
-            Debug.Log("Charge timeout reached!");
-            break; // Stop the charge after timeout
+                Debug.Log("Charge timeout reached!");
+
+                break; // Stop the charge after timeout
         }
 
         // Move the player forward
@@ -611,14 +621,16 @@ IEnumerator ChargeForward(Vector3 targetPosition)
 
     // Stop charge animation and transition to idle
     animator.SetBool("isCharging", false);
-    animator.SetTrigger("isIdle");
+        animator.SetTrigger("isIdle");
 
     // Stop the charge effect after the charge is done
     chargeEffect.Stop();
 
     Debug.Log("Charge complete, or timeout reached, staying at final position.");
-    StartAbilityCooldown("Charge", chargeCooldown);
-    keyActive=false;
+        StartAbilityCooldown("Charge", chargeCooldown);
+        hitlilith = false;
+        hitshield = false;
+    keyActive =false;
     isAbilityInProgress = false;  // Unlock ability usage after charge is complete
 }
 
